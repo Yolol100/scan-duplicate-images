@@ -1,0 +1,84 @@
+/* Algemene styling specifiek voor de adminpagina */
+.dius-admin-page .wrap h1 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.dius-admin-page button.button-primary {
+    background-color: #007cba;
+    border-color: #007cba;
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.dius-admin-page button.button-primary:hover {
+    background-color: #005f8d;
+    border-color: #005f8d;
+}
+
+/* Tabel styling specifiek voor de adminpagina */
+.dius-admin-page table.dius-results-table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.dius-admin-page table.dius-results-table thead th {
+    background-color: #007cba;
+    color: #fff;
+    font-weight: bold;
+    text-align: left;
+    padding: 10px;
+    border-bottom: 2px solid #005f8d;
+}
+
+.dius-admin-page table.dius-results-table tbody td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.dius-admin-page table.dius-results-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.dius-admin-page table.dius-results-table tbody tr:hover {
+    background-color: #eef7ff;
+}
+
+/* Extra knoppen styling specifiek voor de adminpagina */
+.dius-admin-page .button-secondary {
+    background-color: #f1f1f1;
+    border-color: #d7d7d7;
+    color: #555;
+    padding: 8px 18px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.dius-admin-page .button-secondary:hover {
+    background-color: #e2e2e2;
+    border-color: #c6c6c6;
+}
+
+/* Informatie secties specifiek voor de adminpagina */
+.dius-admin-page .notice {
+    background-color: #f9f9f9;
+    border-left: 4px solid #007cba;
+    padding: 10px;
+    margin: 20px 0;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.dius-admin-page .notice.warning {
+    border-left-color: #e5a700;
+    background-color: #fff4e5;
+}
