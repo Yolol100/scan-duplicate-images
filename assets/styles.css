@@ -1,0 +1,165 @@
+.dius-admin-page .description {
+	max-width: 860px;
+}
+
+.dius-card {
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	border-radius: 4px;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+	margin: 20px 0;
+	max-width: 980px;
+	padding: 18px 20px;
+}
+
+.dius-card h2,
+.dius-card h3 {
+	margin-top: 0;
+}
+
+.dius-field-group {
+	margin: 0 0 18px;
+}
+
+.dius-checkbox-grid {
+	display: grid;
+	gap: 10px 16px;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	max-width: 900px;
+}
+
+.dius-checkbox-grid label,
+.dius-inline-options label {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+.dius-checkbox-grid code {
+	font-size: 11px;
+}
+
+.dius-inline-options {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px 24px;
+}
+
+.dius-report {
+	margin-top: 24px;
+}
+
+.dius-summary-grid {
+	display: grid;
+	gap: 12px;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	max-width: 980px;
+}
+
+.dius-stat-card {
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	border-radius: 4px;
+	padding: 14px 16px;
+}
+
+.dius-stat-value {
+	display: block;
+	font-size: 28px;
+	font-weight: 600;
+	line-height: 1.2;
+}
+
+.dius-stat-label {
+	display: block;
+	margin-top: 4px;
+}
+
+.dius-notice {
+	background: #fff;
+	border-left: 4px solid #72aee6;
+	margin-top: 20px;
+	padding: 12px;
+}
+
+.dius-export-form {
+	margin: 16px 0;
+}
+
+.dius-results-table {
+	margin-top: 20px;
+}
+
+.dius-results-table td,
+.dius-results-table th {
+	vertical-align: top;
+}
+
+.dius-results-table a {
+	word-break: break-all;
+}
+
+.dius-image-cell {
+	min-width: 240px;
+}
+
+.dius-image-meta,
+.dius-muted {
+	color: #646970;
+	font-size: 12px;
+	margin-top: 4px;
+}
+
+.dius-usage-list {
+	margin: 0;
+}
+
+.dius-usage-list li {
+	margin-bottom: 8px;
+}
+
+.dius-pill {
+	background: #f0f0f1;
+	border-radius: 999px;
+	display: inline-block;
+	font-size: 11px;
+	line-height: 1;
+	margin-left: 6px;
+	padding: 4px 7px;
+}
+
+.dius-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	align-items: center;
+}
+
+.dius-progress {
+	margin-top: 16px;
+	max-width: 760px;
+}
+
+.dius-progress-track {
+	background: #f0f0f1;
+	border: 1px solid #ccd0d4;
+	border-radius: 999px;
+	height: 14px;
+	overflow: hidden;
+}
+
+.dius-progress-bar {
+	background: #2271b1;
+	display: block;
+	height: 100%;
+	transition: width 160ms ease-in-out;
+	width: 0;
+}
+
+.dius-progress-error .dius-progress-track {
+	border-color: #d63638;
+}
+
+.dius-progress-error .dius-progress-bar {
+	background: #d63638;
+}
