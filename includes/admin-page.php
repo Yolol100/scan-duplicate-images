@@ -367,22 +367,24 @@ function dius_handle_csv_export() {
 	);
 
 	foreach ( $duplicates as $image ) {
-		foreach ( $image['usages'] as $usage ) {
+		$usages = isset( $image['usages'] ) && is_array( $image['usages'] ) ? $image['usages'] : array();
+
+		foreach ( $usages as $usage ) {
 			fputcsv(
 				$output,
 				array(
-					$image['key'] ?? '',
-					$image['attachment_id'] ?? '',
-					$image['filename'] ?? '',
-					$image['url'] ?? '',
-					$image['unique_post_count'] ?? '',
-					$image['usage_count'] ?? '',
-					$usage['post_id'] ?? '',
-					$usage['post_title'] ?? '',
-					$usage['post_type'] ?? '',
-					$usage['edit_url'] ?? '',
-					$usage['source'] ?? '',
-					$usage['context'] ?? '',
+					dius_escape_csv_cell( $image['key'] ?? '' ),
+					dius_escape_csv_cell( $image['attachment_id'] ?? '' ),
+					dius_escape_csv_cell( $image['filename'] ?? '' ),
+					dius_escape_csv_cell( $image['url'] ?? '' ),
+					dius_escape_csv_cell( $image['unique_post_count'] ?? '' ),
+					dius_escape_csv_cell( $image['usage_count'] ?? '' ),
+					dius_escape_csv_cell( $usage['post_id'] ?? '' ),
+					dius_escape_csv_cell( $usage['post_title'] ?? '' ),
+					dius_escape_csv_cell( $usage['post_type'] ?? '' ),
+					dius_escape_csv_cell( $usage['edit_url'] ?? '' ),
+					dius_escape_csv_cell( $usage['source'] ?? '' ),
+					dius_escape_csv_cell( $usage['context'] ?? '' ),
 				)
 			);
 		}
@@ -390,6 +392,23 @@ function dius_handle_csv_export() {
 
 	fclose( $output );
 	exit;
+}
+
+/**
+ * Escape CSV cell values to reduce spreadsheet formula-injection risks.
+ *
+ * @param mixed $value Raw cell value.
+ * @return string
+ */
+function dius_escape_csv_cell( $value ) {
+	$value = is_scalar( $value ) ? (string) $value : '';
+	$value = wp_check_invalid_utf8( $value );
+
+	if ( '' !== $value && in_array( substr( $value, 0, 1 ), array( '=', '+', '-', '@' ), true ) ) {
+		$value = "'" . $value;
+	}
+
+	return $value;
 }
 
 /**
