@@ -566,15 +566,17 @@ function dius_normalize_image_url( $image_url ) {
 	$path = preg_replace( '/-\d+x\d+(?=\.(?:jpg|jpeg|png|gif|webp|avif)$)/i', '', $path );
 	$path = preg_replace( '/-scaled(?=\.(?:jpg|jpeg|png|gif|webp|avif)$)/i', '', $path );
 
+	$parts = wp_parse_url( $image_url );
+
 	if ( 0 === strpos( $image_url, '/' ) ) {
-		return $path;
+		$parts = wp_parse_url( home_url( '/' ) );
 	}
 
-	$parts  = wp_parse_url( $image_url );
 	$scheme = isset( $parts['scheme'] ) ? strtolower( $parts['scheme'] ) : 'https';
 	$host   = isset( $parts['host'] ) ? strtolower( $parts['host'] ) : '';
+	$port   = isset( $parts['port'] ) ? ':' . absint( $parts['port'] ) : '';
 
-	return $host ? $scheme . '://' . $host . $path : $path;
+	return $host ? $scheme . '://' . $host . $port . $path : $path;
 }
 
 /**
