@@ -45,7 +45,7 @@ function dius_admin_page_content() {
 	?>
 	<div class="wrap dius-admin-page">
 		<div class="dius-shell">
-			<header class="dius-hero" aria-labelledby="dius-page-title">
+			<header class="dius-hero components-card" aria-labelledby="dius-page-title">
 				<div>
 					<p class="dius-eyebrow"><?php esc_html_e( 'Media audit', 'scan-duplicate-images' ); ?></p>
 					<h1 id="dius-page-title"><?php esc_html_e( 'Image Usage & Duplicate Media Scanner', 'scan-duplicate-images' ); ?></h1>
@@ -79,17 +79,17 @@ function dius_admin_page_content() {
 function dius_render_value_cards() {
 	?>
 	<div class="dius-value-grid" aria-label="<?php esc_attr_e( 'Audit capabilities', 'scan-duplicate-images' ); ?>">
-		<div class="dius-value-card">
+		<div class="dius-value-card components-card">
 			<span class="dashicons dashicons-search"></span>
 			<h2><?php esc_html_e( 'Usage map', 'scan-duplicate-images' ); ?></h2>
 			<p><?php esc_html_e( 'Shows where the same image is used across scanned content items.', 'scan-duplicate-images' ); ?></p>
 		</div>
-		<div class="dius-value-card">
+		<div class="dius-value-card components-card">
 			<span class="dashicons dashicons-images-alt2"></span>
 			<h2><?php esc_html_e( 'Duplicate media check', 'scan-duplicate-images' ); ?></h2>
 			<p><?php esc_html_e( 'Groups possible duplicate media files by dimensions, file size, and hash when files are readable.', 'scan-duplicate-images' ); ?></p>
 		</div>
-		<div class="dius-value-card">
+		<div class="dius-value-card components-card">
 			<span class="dashicons dashicons-clipboard"></span>
 			<h2><?php esc_html_e( 'Actionable report', 'scan-duplicate-images' ); ?></h2>
 			<p><?php esc_html_e( 'Separates intentional reuse, cleanup candidates, and items that need manual review.', 'scan-duplicate-images' ); ?></p>
@@ -107,7 +107,7 @@ function dius_render_scan_form( $scan_args ) {
 	$post_types = dius_get_scannable_post_types();
 	$selected   = isset( $scan_args['post_types'] ) && is_array( $scan_args['post_types'] ) ? $scan_args['post_types'] : array();
 	?>
-	<form method="post" action="<?php echo esc_url( admin_url( 'admin.php?page=' . DIUS_MENU_SLUG ) ); ?>" class="dius-form dius-panel" data-dius-scan-form>
+	<form method="post" action="<?php echo esc_url( admin_url( 'admin.php?page=' . DIUS_MENU_SLUG ) ); ?>" class="dius-form dius-panel components-card" data-dius-scan-form>
 		<?php wp_nonce_field( 'dius_scan_duplicate_images', 'dius_scan_nonce' ); ?>
 		<input type="hidden" name="dius_scan" value="1" />
 
@@ -119,7 +119,7 @@ function dius_render_scan_form( $scan_args ) {
 		</div>
 
 		<div class="dius-form-grid">
-			<section class="dius-field-card" aria-labelledby="dius-post-types-title">
+			<section class="dius-field-card components-card" aria-labelledby="dius-post-types-title">
 				<h3 id="dius-post-types-title"><?php esc_html_e( 'Content scope', 'scan-duplicate-images' ); ?></h3>
 				<p class="dius-muted"><?php esc_html_e( 'Select the public post types to inspect.', 'scan-duplicate-images' ); ?></p>
 				<div class="dius-checkbox-grid">
@@ -135,7 +135,7 @@ function dius_render_scan_form( $scan_args ) {
 				</div>
 			</section>
 
-			<section class="dius-field-card" aria-labelledby="dius-sources-title">
+			<section class="dius-field-card components-card" aria-labelledby="dius-sources-title">
 				<h3 id="dius-sources-title"><?php esc_html_e( 'Sources', 'scan-duplicate-images' ); ?></h3>
 				<div class="dius-source-list">
 					<?php dius_render_toggle( 'include_blocks', __( 'Gutenberg block attributes', 'scan-duplicate-images' ), __( 'Images stored inside block attributes.', 'scan-duplicate-images' ), ! empty( $scan_args['include_blocks'] ) ); ?>
@@ -146,7 +146,7 @@ function dius_render_scan_form( $scan_args ) {
 				</div>
 			</section>
 
-			<section class="dius-field-card" aria-labelledby="dius-limit-title">
+			<section class="dius-field-card components-card" aria-labelledby="dius-limit-title">
 				<h3 id="dius-limit-title"><?php esc_html_e( 'Performance guard', 'scan-duplicate-images' ); ?></h3>
 				<label for="dius-limit" class="dius-input-label"><?php esc_html_e( 'Optional scan limit', 'scan-duplicate-images' ); ?></label>
 				<input id="dius-limit" class="dius-number-input" type="number" min="0" step="1" name="limit" value="<?php echo esc_attr( isset( $scan_args['limit'] ) ? absint( $scan_args['limit'] ) : 0 ); ?>" />
@@ -155,9 +155,9 @@ function dius_render_scan_form( $scan_args ) {
 		</div>
 
 		<div class="dius-actions">
-			<button type="button" class="button button-primary dius-primary-button" data-dius-ajax-start hidden><?php esc_html_e( 'Start audit', 'scan-duplicate-images' ); ?></button>
-			<button type="button" class="button dius-stop-button" data-dius-stop-scan hidden disabled><?php esc_html_e( 'Stop scan', 'scan-duplicate-images' ); ?></button>
-			<?php submit_button( esc_html__( 'Fallback: scan in one request', 'scan-duplicate-images' ), 'secondary', 'submit', false ); ?>
+			<button type="button" class="button button-primary components-button is-primary dius-primary-button" data-dius-ajax-start hidden><?php esc_html_e( 'Start audit', 'scan-duplicate-images' ); ?></button>
+			<button type="button" class="button components-button is-secondary dius-stop-button" data-dius-stop-scan hidden disabled><?php esc_html_e( 'Stop scan', 'scan-duplicate-images' ); ?></button>
+			<button type="submit" class="button components-button is-secondary" name="submit" value="1"><?php esc_html_e( 'Fallback: scan in one request', 'scan-duplicate-images' ); ?></button>
 		</div>
 
 		<div class="dius-progress" data-dius-progress hidden>
@@ -182,7 +182,7 @@ function dius_render_scan_form( $scan_args ) {
 function dius_render_toggle( $name, $label, $help, $checked, $disabled = false ) {
 	?>
 	<label class="dius-toggle-row">
-		<input type="checkbox" name="<?php echo esc_attr( $name ); ?>" value="1" <?php checked( $checked ); ?> <?php disabled( $disabled ); ?> />
+		<input type="checkbox" name="<?php echo esc_attr( $name ); ?>" value="1" <?php checked( $checked && ! $disabled ); ?> <?php disabled( $disabled ); ?> />
 		<span>
 			<strong><?php echo esc_html( $label ); ?></strong>
 			<small><?php echo esc_html( $help ); ?></small>
@@ -205,7 +205,7 @@ function dius_display_scan_report( $report ) {
 	$unused      = isset( $media_audit['unused_media'] ) && is_array( $media_audit['unused_media'] ) ? $media_audit['unused_media'] : array();
 	?>
 	<section class="dius-report" aria-labelledby="dius-report-title">
-		<div class="dius-panel dius-report-panel">
+		<div class="dius-panel dius-report-panel components-card">
 			<div class="dius-panel-header dius-report-header">
 				<div>
 					<p class="dius-eyebrow"><?php esc_html_e( 'Audit result', 'scan-duplicate-images' ); ?></p>
@@ -246,7 +246,7 @@ function dius_display_scan_report( $report ) {
  */
 function dius_render_stat_card( $label, $value, $hint = '' ) {
 	?>
-	<div class="dius-stat-card">
+	<div class="dius-stat-card components-card">
 		<span class="dius-stat-value"><?php echo esc_html( number_format_i18n( absint( $value ) ) ); ?></span>
 		<span class="dius-stat-label"><?php echo esc_html( $label ); ?></span>
 		<?php if ( '' !== $hint ) : ?>
@@ -294,7 +294,7 @@ function dius_render_export_form( $args ) {
 			<input type="hidden" name="<?php echo esc_attr( $flag ); ?>" value="<?php echo esc_attr( ! empty( $args[ $flag ] ) ? '1' : '0' ); ?>" />
 		<?php endforeach; ?>
 		<input type="hidden" name="limit" value="<?php echo esc_attr( isset( $args['limit'] ) ? absint( $args['limit'] ) : 0 ); ?>" />
-		<?php submit_button( esc_html__( 'Export action CSV', 'scan-duplicate-images' ), 'secondary', 'submit', false ); ?>
+		<button type="submit" class="button components-button is-secondary" name="submit" value="1"><?php esc_html_e( 'Export action CSV', 'scan-duplicate-images' ); ?></button>
 	</form>
 	<?php
 }
@@ -306,7 +306,7 @@ function dius_render_export_form( $args ) {
  */
 function dius_render_repeated_usage_results( $duplicates ) {
 	?>
-	<section class="dius-result-section" aria-labelledby="dius-reuse-title">
+	<section class="dius-result-section components-card" aria-labelledby="dius-reuse-title">
 		<div class="dius-section-heading">
 			<div>
 				<p class="dius-eyebrow"><?php esc_html_e( 'Content usage', 'scan-duplicate-images' ); ?></p>
@@ -322,7 +322,7 @@ function dius_render_repeated_usage_results( $duplicates ) {
 
 		<div class="dius-results-list">
 			<?php foreach ( $duplicates as $image ) : ?>
-				<article class="dius-result-card">
+				<article class="dius-result-card components-card">
 					<div class="dius-result-media">
 						<?php dius_render_image_preview( $image ); ?>
 					</div>
@@ -478,7 +478,7 @@ function dius_render_usage_list( $usages, $mode ) {
  */
 function dius_render_media_duplicate_groups( $groups ) {
 	?>
-	<section class="dius-result-section" aria-labelledby="dius-media-duplicates-title">
+	<section class="dius-result-section components-card" aria-labelledby="dius-media-duplicates-title">
 		<div class="dius-section-heading">
 			<div>
 				<p class="dius-eyebrow"><?php esc_html_e( 'Media library', 'scan-duplicate-images' ); ?></p>
@@ -494,7 +494,7 @@ function dius_render_media_duplicate_groups( $groups ) {
 
 		<div class="dius-media-groups">
 			<?php foreach ( $groups as $group ) : ?>
-				<article class="dius-media-group-card">
+				<article class="dius-media-group-card components-card">
 					<div class="dius-result-title-row">
 						<h3><?php echo esc_html( sprintf( __( '%s similar files', 'scan-duplicate-images' ), number_format_i18n( absint( $group['count'] ?? 0 ) ) ) ); ?></h3>
 						<?php if ( 'exact_file_match' === ( $group['confidence'] ?? '' ) ) : ?>
@@ -523,7 +523,7 @@ function dius_render_media_duplicate_groups( $groups ) {
 function dius_render_media_item( $item ) {
 	$attachment_id = absint( $item['attachment_id'] ?? 0 );
 	?>
-	<div class="dius-media-item">
+	<div class="dius-media-item components-card">
 		<div class="dius-result-media">
 			<?php
 			if ( $attachment_id ) {
@@ -555,7 +555,7 @@ function dius_render_unused_media( $items ) {
 	$visible_items = array_slice( $items, 0, DIUS_MAX_RENDERED_MEDIA_ITEMS );
 	$hidden_count   = max( 0, count( $items ) - count( $visible_items ) );
 	?>
-	<section class="dius-result-section" aria-labelledby="dius-unused-title">
+	<section class="dius-result-section components-card" aria-labelledby="dius-unused-title">
 		<div class="dius-section-heading">
 			<div>
 				<p class="dius-eyebrow"><?php esc_html_e( 'Manual review', 'scan-duplicate-images' ); ?></p>

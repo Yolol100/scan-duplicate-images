@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Image Usage & Duplicate Media Scanner
  * Description: Audits repeated image usage, possible duplicate media files, featured images, Gutenberg blocks, Elementor data, WooCommerce galleries, and ACF fields.
- * Version: 3.2.1
+ * Version: 3.2.2
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Webactueel
@@ -33,7 +33,7 @@ if ( defined( 'DIUS_PLUGIN_FILE' ) || function_exists( 'dius_get_scannable_post_
 define( 'DIUS_PLUGIN_FILE', __FILE__ );
 define( 'DIUS_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'DIUS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'DIUS_VERSION', '3.2.1' );
+define( 'DIUS_VERSION', '3.2.2' );
 define( 'DIUS_MENU_SLUG', 'image-usage-scanner' );
 define( 'DIUS_AJAX_BATCH_SIZE', 25 );
 define( 'DIUS_TRANSIENT_TTL', HOUR_IN_SECONDS );

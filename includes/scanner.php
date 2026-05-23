@@ -67,9 +67,10 @@ function dius_get_default_scan_args() {
  * @return array
  */
 function dius_sanitize_scan_args( $raw_args ) {
-	$defaults   = dius_get_default_scan_args();
-	$available  = array_keys( dius_get_scannable_post_types() );
-	$post_types = array();
+	$defaults          = dius_get_default_scan_args();
+	$available         = array_keys( dius_get_scannable_post_types() );
+	$post_types        = array();
+	$post_types_posted = array_key_exists( 'post_types', $raw_args );
 
 	if ( isset( $raw_args['post_types'] ) && is_array( $raw_args['post_types'] ) ) {
 		foreach ( $raw_args['post_types'] as $post_type ) {
@@ -81,7 +82,10 @@ function dius_sanitize_scan_args( $raw_args ) {
 		}
 	}
 
-	if ( empty( $post_types ) ) {
+	$include_media_library = ! empty( $raw_args['include_media_library'] );
+
+	// Allow a deliberate media-library-only audit when all content post types are unchecked.
+	if ( empty( $post_types ) && ! $post_types_posted && ! $include_media_library ) {
 		$post_types = $defaults['post_types'];
 	}
 
@@ -94,7 +98,7 @@ function dius_sanitize_scan_args( $raw_args ) {
 		'include_blocks'        => ! empty( $raw_args['include_blocks'] ),
 		'include_elementor'     => ! empty( $raw_args['include_elementor'] ),
 		'include_woocommerce'   => ! empty( $raw_args['include_woocommerce'] ),
-		'include_media_library' => ! empty( $raw_args['include_media_library'] ),
+		'include_media_library' => $include_media_library,
 		'limit'                 => $limit,
 	);
 }
@@ -413,12 +417,17 @@ function dius_scan_mixed_value_for_images( $value, &$results, WP_Post $post, $so
 		return;
 	}
 
+	$handled_keys          = array();
+	$matched_attachment_id = 0;
+
 	foreach ( array( 'ID', 'id', 'attachment_id', 'image_id' ) as $id_key ) {
 		if ( isset( $value[ $id_key ] ) ) {
 			$attachment_id = absint( $value[ $id_key ] );
 
 			if ( $attachment_id && wp_attachment_is_image( $attachment_id ) ) {
 				dius_add_attachment_usage( $results, $attachment_id, $post, $source, $context );
+				$handled_keys[ $id_key ] = true;
+				$matched_attachment_id   = $attachment_id;
 				break;
 			}
 		}
@@ -426,11 +435,25 @@ function dius_scan_mixed_value_for_images( $value, &$results, WP_Post $post, $so
 
 	foreach ( array( 'url', 'src', 'image', 'background_image', 'background' ) as $url_key ) {
 		if ( isset( $value[ $url_key ] ) && is_string( $value[ $url_key ] ) && dius_is_image_url( $value[ $url_key ] ) ) {
-			dius_add_image_usage( $results, $value[ $url_key ], $post, $source, $context );
+			$handled_keys[ $url_key ] = true;
+
+			if ( ! $matched_attachment_id ) {
+				dius_add_image_usage( $results, $value[ $url_key ], $post, $source, $context );
+			}
+		}
+	}
+
+	if ( $matched_attachment_id ) {
+		foreach ( array( 'sizes', 'width', 'height', 'alt', 'title', 'caption', 'description', 'mime_type', 'filesize', 'subtype', 'icon', 'filename', 'name' ) as $metadata_key ) {
+			$handled_keys[ $metadata_key ] = true;
 		}
 	}
 
 	foreach ( $value as $nested_key => $nested_value ) {
+		if ( is_string( $nested_key ) && isset( $handled_keys[ $nested_key ] ) ) {
+			continue;
+		}
+
 		$nested_context = is_string( $nested_key ) ? $context . ' > ' . $nested_key : $context;
 		dius_scan_mixed_value_for_images( $nested_value, $results, $post, $source, $nested_context, $allow_numeric_attachment_ids );
 	}
@@ -644,8 +667,14 @@ function dius_normalize_image_url( $image_url ) {
  * @return array<int>
  */
 function dius_get_scan_post_ids( $args ) {
+	$post_types = isset( $args['post_types'] ) && is_array( $args['post_types'] ) ? array_filter( array_map( 'sanitize_key', $args['post_types'] ) ) : array();
+
+	if ( empty( $post_types ) ) {
+		return array();
+	}
+
 	$query_args = array(
-		'post_type'              => $args['post_types'],
+		'post_type'              => $post_types,
 		'post_status'            => $args['post_statuses'],
 		'posts_per_page'         => ! empty( $args['limit'] ) ? absint( $args['limit'] ) : -1,
 		'orderby'                => 'ID',

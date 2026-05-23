@@ -4,7 +4,7 @@ Tags: images, media, admin, acf, elementor, woocommerce, duplicate images
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 3.2.1
+Stable tag: 3.2.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -55,6 +55,11 @@ A possible duplicate media group with an exact file hash match is the strongest 
 No. They were not found in the selected scan scope. They may still be used by theme options, CSS, widgets, menus, forms, builders, or external templates.
 
 == Changelog ==
+
+= 3.2.2 =
+* Tightened media-library-only scans so all content post types can be intentionally unchecked.
+* Reduced duplicate usage rows from array-based image fields such as Elementor and ACF image arrays.
+* Aligned admin markup more closely with Gutenberg component-style classes while keeping the plugin build-free.
 
 = 3.2.1 =
 * Confirmed fallback scan trigger markup and tightened AJAX error handling for non-JSON server failures.
