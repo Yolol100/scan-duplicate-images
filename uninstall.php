@@ -1,11 +1,11 @@
 <?php
 /**
- * Uninstall cleanup for Duplicate Image Usage Scanner.
+ * Uninstall cleanup for Featured & ACF Image Usage Scanner.
  *
  * The plugin does not store permanent content data. This removes only temporary
  * scan/report transients created by the admin scan flow.
  *
- * @package DuplicateImageUsageScanner
+ * @package FeaturedAcfImageUsageScanner
  */
 
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
