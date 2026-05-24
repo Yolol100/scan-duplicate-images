@@ -1,117 +1,116 @@
 <?php
 /**
- * Plugin Name: Featured & ACF Image Usage Scanner
- * Description: Finds repeated featured images on pages/posts and repeated ACF image/gallery fields on pages.
- * Version: 3.4.0
- * Requires at least: 6.0
- * Requires PHP: 7.4
+ * Plugin Name: Media Insight
+ * Plugin URI: https://webactueel.nl
+ * Description: Scan featured images and ACF media usage inside WordPress.
+ * Version: 1.1.0
  * Author: Webactueel
- * Text Domain: scan-duplicate-images
- * Domain Path: /languages
- * License: GPL-2.0-or-later
- * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * License: GPL2
+ * Text Domain: media-insight
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (!defined('ABSPATH')) {
+    exit;
 }
 
-if ( defined( 'DIUS_PLUGIN_FILE' ) || function_exists( 'dius_get_default_scan_args' ) ) {
-	if ( is_admin() && ! function_exists( 'dius_bootstrap_conflict_notice' ) ) {
-		/**
-		 * Show a controlled notice instead of causing a fatal error when another copy is active.
-		 */
-		function dius_bootstrap_conflict_notice() {
-			echo '<div class="notice notice-error"><p>' . esc_html__( 'Featured & ACF Image Usage Scanner was not loaded because another copy or conflicting version is already active.', 'scan-duplicate-images' ) . '</p></div>';
-		}
-		add_action( 'admin_notices', 'dius_bootstrap_conflict_notice' );
-	}
+define('MEDIA_INSIGHT_URL', plugin_dir_url(__FILE__));
 
-	return;
+add_action('admin_menu', 'media_insight_register_menu');
+add_action('admin_enqueue_scripts', 'media_insight_admin_assets');
+
+function media_insight_register_menu() {
+
+    add_menu_page(
+        esc_html__('Media Insight', 'media-insight'),
+        esc_html__('Media Insight', 'media-insight'),
+        'manage_options',
+        'media-insight',
+        'media_insight_render_page',
+        'dashicons-format-image',
+        80
+    );
 }
 
-define( 'DIUS_PLUGIN_FILE', __FILE__ );
-define( 'DIUS_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
-define( 'DIUS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'DIUS_VERSION', '3.4.0' );
-define( 'DIUS_MENU_SLUG', 'image-usage-scanner' );
-define( 'DIUS_AJAX_BATCH_SIZE', 25 );
-define( 'DIUS_TRANSIENT_TTL', HOUR_IN_SECONDS );
+function media_insight_admin_assets($hook) {
 
-require_once DIUS_PLUGIN_PATH . 'includes/scanner.php';
-require_once DIUS_PLUGIN_PATH . 'includes/admin-page.php';
+    if ($hook !== 'toplevel_page_media-insight') {
+        return;
+    }
 
-/**
- * Load translations.
- */
-function dius_load_textdomain() {
-	load_plugin_textdomain( 'scan-duplicate-images', false, dirname( plugin_basename( DIUS_PLUGIN_FILE ) ) . '/languages' );
-}
-add_action( 'plugins_loaded', 'dius_load_textdomain' );
-
-if ( is_admin() ) {
-	add_action( 'admin_menu', 'dius_add_admin_page' );
-	add_action( 'admin_enqueue_scripts', 'dius_enqueue_admin_assets' );
-	add_action( 'admin_post_dius_export_csv', 'dius_handle_csv_export' );
-	add_action( 'wp_ajax_dius_start_scan', 'dius_ajax_start_scan' );
-	add_action( 'wp_ajax_dius_process_scan_batch', 'dius_ajax_process_scan_batch' );
+    wp_enqueue_style(
+        'media-insight-admin',
+        MEDIA_INSIGHT_URL . 'assets/admin.css',
+        array(),
+        '1.1.0'
+    );
 }
 
-/**
- * Enqueue admin assets only on the plugin admin page.
- *
- * @param string $hook_suffix Current admin page hook suffix.
- */
-function dius_enqueue_admin_assets( $hook_suffix ) {
-	if ( 'toplevel_page_' . DIUS_MENU_SLUG !== $hook_suffix ) {
-		return;
-	}
+function media_insight_render_page() {
 
-	wp_enqueue_style(
-		'dius-admin-styles',
-		DIUS_PLUGIN_URL . 'assets/styles.css',
-		array( 'wp-components' ),
-		DIUS_VERSION
-	);
+    $acf_active = class_exists('ACF');
 
-	wp_enqueue_script(
-		'dius-admin-scan',
-		DIUS_PLUGIN_URL . 'assets/admin-scan.js',
-		array( 'wp-a11y' ),
-		DIUS_VERSION,
-		true
-	);
+    $post_count = wp_count_posts('post')->publish;
+    $page_count = wp_count_posts('page')->publish;
+    ?>
 
-	wp_localize_script(
-		'dius-admin-scan',
-		'diusImageUsageScannerSettings',
-		array(
-			'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
-			'nonce'     => wp_create_nonce( 'dius_ajax_scan' ),
-			'batchSize' => DIUS_AJAX_BATCH_SIZE,
-			'i18n'      => array(
-				'starting'       => __( 'Preparing scan...', 'scan-duplicate-images' ),
-				'scanning'       => __( 'Scanning featured and ACF image usage...', 'scan-duplicate-images' ),
-				'complete'       => __( 'Scan complete.', 'scan-duplicate-images' ),
-				'stopped'        => __( 'Scan stopped. Start a new scan when you are ready.', 'scan-duplicate-images' ),
-				'failed'         => __( 'The scan failed. Please try the fallback submit button or reduce the scan limit.', 'scan-duplicate-images' ),
-				'noItems'        => __( 'No matching items were found for this scan.', 'scan-duplicate-images' ),
-			),
-		)
-	);
-}
+    <div class="wrap media-insight-wrap">
 
-/**
- * Build a namespaced transient key for the current user and scan.
- *
- * @param string $type    Transient type, such as state or report.
- * @param string $scan_id Scan UUID.
- * @return string
- */
-function dius_get_scan_transient_key( $type, $scan_id ) {
-	$type    = sanitize_key( $type );
-	$scan_id = sanitize_key( $scan_id );
-	$user_id = get_current_user_id();
+        <h1><?php echo esc_html__('Media Insight', 'media-insight'); ?></h1>
 
-	return 'dius_' . $type . '_' . $user_id . '_' . $scan_id;
+        <p class="media-insight-description">
+            <?php echo esc_html__('Scan featured images and ACF media usage directly inside WordPress.', 'media-insight'); ?>
+        </p>
+
+        <div class="media-insight-grid">
+
+            <div class="media-insight-card">
+
+                <h2><?php echo esc_html__('Included', 'media-insight'); ?></h2>
+
+                <ul class="mi-included-list">
+                    <li><?php echo esc_html__('Pages — Featured Images', 'media-insight'); ?></li>
+                    <li><?php echo esc_html__('Pages — ACF Image Fields', 'media-insight'); ?></li>
+                    <li><?php echo esc_html__('Posts — Featured Images', 'media-insight'); ?></li>
+                </ul>
+
+            </div>
+
+            <div class="media-insight-card">
+
+                <h2><?php echo esc_html__('Environment', 'media-insight'); ?></h2>
+
+                <table class="widefat striped">
+                    <tbody>
+
+                        <tr>
+                            <td><?php echo esc_html__('Posts', 'media-insight'); ?></td>
+                            <td><?php echo esc_html($post_count); ?></td>
+                        </tr>
+
+                        <tr>
+                            <td><?php echo esc_html__('Pages', 'media-insight'); ?></td>
+                            <td><?php echo esc_html($page_count); ?></td>
+                        </tr>
+
+                        <tr>
+                            <td><?php echo esc_html__('ACF Detected', 'media-insight'); ?></td>
+                            <td>
+                                <?php
+                                echo $acf_active
+                                    ? esc_html__('Yes', 'media-insight')
+                                    : esc_html__('No', 'media-insight');
+                                ?>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <?php
 }
