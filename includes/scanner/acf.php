@@ -2,7 +2,7 @@
 /**
  * ACF image and gallery scanner.
  *
- * @package FeaturedAcfImageUsageScanner
+ * @package MediaInsight
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param array   $results Results array.
  * @param array   $stats   Stats array.
  */
-function dius_scan_page_acf_image_fields( WP_Post $post, &$results, &$stats ) {
+function media_insight_scan_page_acf_image_fields( WP_Post $post, &$results, &$stats ) {
 	if ( function_exists( 'get_field_objects' ) ) {
 		$field_objects = get_field_objects( $post->ID );
 
@@ -25,13 +25,12 @@ function dius_scan_page_acf_image_fields( WP_Post $post, &$results, &$stats ) {
 		}
 
 		foreach ( $field_objects as $field ) {
-			dius_scan_acf_field_object( $field, $post, $results, $stats );
+			media_insight_scan_acf_field_object( $field, $post, $results, $stats );
 		}
 
 		return;
 	}
 
-	// Fallback for older ACF contexts. Only explicit image-shaped values are used.
 	if ( ! function_exists( 'get_fields' ) ) {
 		return;
 	}
@@ -43,7 +42,7 @@ function dius_scan_page_acf_image_fields( WP_Post $post, &$results, &$stats ) {
 	}
 
 	foreach ( $fields as $field_name => $field_value ) {
-		dius_scan_acf_image_value( $field_value, $post, $results, $stats, (string) $field_name, false );
+		media_insight_scan_acf_image_value( $field_value, $post, $results, $stats, (string) $field_name, false );
 	}
 }
 
@@ -56,17 +55,7 @@ function dius_scan_page_acf_image_fields( WP_Post $post, &$results, &$stats ) {
  * @param array   $stats   Stats array.
  * @param string  $parent_context Optional parent field context for nested structures.
  */
-
-/**
- * Scan an ACF field object with field-type awareness.
- *
- * @param array   $field   ACF field object.
- * @param WP_Post $post    Page object.
- * @param array   $results Results array.
- * @param array   $stats   Stats array.
- * @param string  $parent_context Optional parent field context for nested structures.
- */
-function dius_scan_acf_field_object( $field, WP_Post $post, &$results, &$stats, $parent_context = '' ) {
+function media_insight_scan_acf_field_object( $field, WP_Post $post, &$results, &$stats, $parent_context = '' ) {
 	if ( ! is_array( $field ) || ! array_key_exists( 'value', $field ) ) {
 		return;
 	}
@@ -78,12 +67,12 @@ function dius_scan_acf_field_object( $field, WP_Post $post, &$results, &$stats, 
 	$context = '' !== $parent_context ? $parent_context . ' > ' . $field_context : $field_context;
 
 	if ( in_array( $field_type, array( 'image', 'gallery' ), true ) ) {
-		dius_scan_acf_image_value( $field['value'], $post, $results, $stats, $context, true );
+		media_insight_scan_acf_image_value( $field['value'], $post, $results, $stats, $context, true );
 		return;
 	}
 
 	if ( in_array( $field_type, array( 'group', 'repeater', 'flexible_content', 'clone' ), true ) ) {
-		dius_scan_acf_structured_field( $field, $post, $results, $stats, $context );
+		media_insight_scan_acf_structured_field( $field, $post, $results, $stats, $context );
 	}
 }
 
@@ -96,27 +85,17 @@ function dius_scan_acf_field_object( $field, WP_Post $post, &$results, &$stats, 
  * @param array   $stats   Stats array.
  * @param string  $context Context label.
  */
-
-/**
- * Scan structured ACF fields by using sub field definitions where possible.
- *
- * @param array   $field   ACF field object.
- * @param WP_Post $post    Page object.
- * @param array   $results Results array.
- * @param array   $stats   Stats array.
- * @param string  $context Context label.
- */
-function dius_scan_acf_structured_field( $field, WP_Post $post, &$results, &$stats, $context ) {
+function media_insight_scan_acf_structured_field( $field, WP_Post $post, &$results, &$stats, $context ) {
 	$value      = isset( $field['value'] ) ? $field['value'] : null;
 	$sub_fields = isset( $field['sub_fields'] ) && is_array( $field['sub_fields'] ) ? $field['sub_fields'] : array();
 
 	if ( empty( $sub_fields ) && 'flexible_content' === sanitize_key( $field['type'] ?? '' ) && ! empty( $field['layouts'] ) && is_array( $field['layouts'] ) ) {
-		dius_scan_acf_flexible_content_layouts( $field['layouts'], $value, $post, $results, $stats, $context );
+		media_insight_scan_acf_flexible_content_layouts( $field['layouts'], $value, $post, $results, $stats, $context );
 		return;
 	}
 
 	if ( empty( $sub_fields ) ) {
-		dius_scan_acf_image_value( $value, $post, $results, $stats, $context, false );
+		media_insight_scan_acf_image_value( $value, $post, $results, $stats, $context, false );
 		return;
 	}
 
@@ -124,17 +103,15 @@ function dius_scan_acf_structured_field( $field, WP_Post $post, &$results, &$sta
 		return;
 	}
 
-	// Group fields usually store one associative array.
-	if ( dius_is_assoc_array( $value ) ) {
-		dius_scan_acf_subfield_row( $sub_fields, $value, $post, $results, $stats, $context );
+	if ( media_insight_is_assoc_array( $value ) ) {
+		media_insight_scan_acf_subfield_row( $sub_fields, $value, $post, $results, $stats, $context );
 		return;
 	}
 
-	// Repeater and flexible content store rows.
 	foreach ( $value as $index => $row ) {
 		if ( is_array( $row ) ) {
 			$row_context = $context . ' > row ' . ( absint( $index ) + 1 );
-			dius_scan_acf_subfield_row( $sub_fields, $row, $post, $results, $stats, $row_context );
+			media_insight_scan_acf_subfield_row( $sub_fields, $row, $post, $results, $stats, $row_context );
 		}
 	}
 }
@@ -149,18 +126,7 @@ function dius_scan_acf_structured_field( $field, WP_Post $post, &$results, &$sta
  * @param array   $stats   Stats array.
  * @param string  $context Context label.
  */
-
-/**
- * Scan ACF flexible content rows against their layout definitions.
- *
- * @param array   $layouts Layout definitions.
- * @param mixed   $value   Flexible content value.
- * @param WP_Post $post    Page object.
- * @param array   $results Results array.
- * @param array   $stats   Stats array.
- * @param string  $context Context label.
- */
-function dius_scan_acf_flexible_content_layouts( $layouts, $value, WP_Post $post, &$results, &$stats, $context ) {
+function media_insight_scan_acf_flexible_content_layouts( $layouts, $value, WP_Post $post, &$results, &$stats, $context ) {
 	if ( empty( $layouts ) || ! is_array( $layouts ) || empty( $value ) || ! is_array( $value ) ) {
 		return;
 	}
@@ -190,7 +156,7 @@ function dius_scan_acf_flexible_content_layouts( $layouts, $value, WP_Post $post
 		$layout_label = isset( $layout['label'] ) && '' !== (string) $layout['label'] ? (string) $layout['label'] : $layout_name;
 		$row_context  = $context . ' > ' . $layout_label . ' row ' . ( absint( $index ) + 1 );
 
-		dius_scan_acf_subfield_row( $layout['sub_fields'], $row, $post, $results, $stats, $row_context );
+		media_insight_scan_acf_subfield_row( $layout['sub_fields'], $row, $post, $results, $stats, $row_context );
 	}
 }
 
@@ -204,18 +170,7 @@ function dius_scan_acf_flexible_content_layouts( $layouts, $value, WP_Post $post
  * @param array   $stats      Stats array.
  * @param string  $context    Context label.
  */
-
-/**
- * Scan a structured ACF row against sub field definitions.
- *
- * @param array   $sub_fields Sub field definitions.
- * @param array   $row        Row value.
- * @param WP_Post $post       Page object.
- * @param array   $results    Results array.
- * @param array   $stats      Stats array.
- * @param string  $context    Context label.
- */
-function dius_scan_acf_subfield_row( $sub_fields, $row, WP_Post $post, &$results, &$stats, $context ) {
+function media_insight_scan_acf_subfield_row( $sub_fields, $row, WP_Post $post, &$results, &$stats, $context ) {
 	foreach ( $sub_fields as $sub_field ) {
 		if ( ! is_array( $sub_field ) ) {
 			continue;
@@ -242,11 +197,9 @@ function dius_scan_acf_subfield_row( $sub_fields, $row, WP_Post $post, &$results
 		$sub_context        = $context . ' > ' . $label;
 
 		if ( in_array( sanitize_key( $sub_field['type'] ?? '' ), array( 'image', 'gallery' ), true ) ) {
-			dius_scan_acf_image_value( $value, $post, $results, $stats, $sub_context, true );
+			media_insight_scan_acf_image_value( $value, $post, $results, $stats, $sub_context, true );
 		} else {
-			// Pass the parent row context here. dius_scan_acf_field_object() appends
-			// the current field label itself, so passing $sub_context would duplicate labels.
-			dius_scan_acf_field_object( $sub_field, $post, $results, $stats, $context );
+			media_insight_scan_acf_field_object( $sub_field, $post, $results, $stats, $sub_context );
 		}
 	}
 }
@@ -261,24 +214,13 @@ function dius_scan_acf_subfield_row( $sub_fields, $row, WP_Post $post, &$results
  * @param string  $context       Context label.
  * @param bool    $allow_numeric Whether plain numeric values are allowed as attachment IDs.
  */
-
-/**
- * Scan image-like ACF values.
- *
- * @param mixed   $value         ACF value.
- * @param WP_Post $post          Page object.
- * @param array   $results       Results array.
- * @param array   $stats         Stats array.
- * @param string  $context       Context label.
- * @param bool    $allow_numeric Whether plain numeric values are allowed as attachment IDs.
- */
-function dius_scan_acf_image_value( $value, WP_Post $post, &$results, &$stats, $context, $allow_numeric ) {
+function media_insight_scan_acf_image_value( $value, WP_Post $post, &$results, &$stats, $context, $allow_numeric ) {
 	if ( is_int( $value ) || ( is_string( $value ) && ctype_digit( $value ) ) ) {
 		if ( $allow_numeric ) {
 			$attachment_id = absint( $value );
 
-			if ( $attachment_id && dius_attachment_is_supported_image( $attachment_id ) ) {
-				if ( dius_add_attachment_usage( $results, $attachment_id, $post, 'acf_page_image', $context ) ) {
+			if ( $attachment_id && media_insight_attachment_is_supported_image( $attachment_id ) ) {
+				if ( media_insight_add_attachment_usage( $results, $attachment_id, $post, 'acf_page_image', $context ) ) {
 					$stats['acf_page_usages']++;
 				}
 			}
@@ -287,7 +229,7 @@ function dius_scan_acf_image_value( $value, WP_Post $post, &$results, &$stats, $
 	}
 
 	if ( is_string( $value ) ) {
-		if ( dius_is_image_url( $value ) && dius_add_image_usage( $results, $value, $post, 'acf_page_image', $context, 0 ) ) {
+		if ( media_insight_is_image_url( $value ) && media_insight_add_image_usage( $results, $value, $post, 'acf_page_image', $context, 0 ) ) {
 			$stats['acf_page_usages']++;
 		}
 		return;
@@ -297,19 +239,19 @@ function dius_scan_acf_image_value( $value, WP_Post $post, &$results, &$stats, $
 		return;
 	}
 
-	if ( dius_array_looks_like_acf_image( $value ) ) {
-		$attachment_id = dius_get_attachment_id_from_acf_array( $value );
+	if ( media_insight_array_looks_like_acf_image( $value ) ) {
+		$attachment_id = media_insight_get_attachment_id_from_acf_array( $value );
 
 		if ( $attachment_id ) {
-			if ( dius_add_attachment_usage( $results, $attachment_id, $post, 'acf_page_image', $context ) ) {
+			if ( media_insight_add_attachment_usage( $results, $attachment_id, $post, 'acf_page_image', $context ) ) {
 				$stats['acf_page_usages']++;
 			}
 			return;
 		}
 
 		foreach ( array( 'url', 'src' ) as $url_key ) {
-			if ( ! empty( $value[ $url_key ] ) && is_string( $value[ $url_key ] ) && dius_is_image_url( $value[ $url_key ] ) ) {
-				if ( dius_add_image_usage( $results, $value[ $url_key ], $post, 'acf_page_image', $context, 0 ) ) {
+			if ( ! empty( $value[ $url_key ] ) && is_string( $value[ $url_key ] ) && media_insight_is_image_url( $value[ $url_key ] ) ) {
+				if ( media_insight_add_image_usage( $results, $value[ $url_key ], $post, 'acf_page_image', $context, 0 ) ) {
 					$stats['acf_page_usages']++;
 				}
 				return;
@@ -317,16 +259,10 @@ function dius_scan_acf_image_value( $value, WP_Post $post, &$results, &$stats, $
 		}
 	}
 
-	$allow_nested_numeric_ids = $allow_numeric && ! dius_is_assoc_array( $value );
+	$allow_nested_numeric_ids = $allow_numeric && ! media_insight_is_assoc_array( $value );
 
 	foreach ( $value as $nested_value ) {
-		dius_scan_acf_image_value( $nested_value, $post, $results, $stats, $context, $allow_nested_numeric_ids );
+		media_insight_scan_acf_image_value( $nested_value, $post, $results, $stats, $context, $allow_nested_numeric_ids );
 	}
 }
 
-/**
- * Decide if an array looks like an ACF image array.
- *
- * @param array $value Value array.
- * @return bool
- */

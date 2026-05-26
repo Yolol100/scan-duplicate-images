@@ -1,8 +1,8 @@
 <?php
 /**
- * Scan arguments and post selection.
+ * Scan arguments and post selection helpers.
  *
- * @package FeaturedAcfImageUsageScanner
+ * @package MediaInsight
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -10,11 +10,38 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Return the maximum positive scan limit accepted from wp-admin.
+ *
+ * A limit of 0 still means scan all matching items.
+ *
+ * @return int
+ */
+function media_insight_get_max_scan_limit() {
+	return defined( 'MEDIA_INSIGHT_MAX_SCAN_LIMIT' ) ? absint( MEDIA_INSIGHT_MAX_SCAN_LIMIT ) : 50000;
+}
+
+/**
+ * Normalize a positive scan limit while preserving 0 as unlimited.
+ *
+ * @param mixed $limit Raw scan limit.
+ * @return int
+ */
+function media_insight_normalize_scan_limit( $limit ) {
+	$limit = is_numeric( $limit ) ? (int) $limit : 0;
+
+	if ( $limit <= 0 ) {
+		return 0;
+	}
+
+	return min( $limit, media_insight_get_max_scan_limit() );
+}
+
+/**
  * Build default scan arguments.
  *
  * @return array
  */
-function dius_get_default_scan_args() {
+function media_insight_get_default_scan_args() {
 	return array(
 		'scan_pages'       => true,
 		'scan_posts'       => true,
@@ -30,71 +57,26 @@ function dius_get_default_scan_args() {
  * @param array $raw_args Raw arguments.
  * @return array
  */
-
-/**
- * Sanitize scan arguments submitted from wp-admin.
- *
- * @param array $raw_args Raw arguments.
- * @return array
- */
-function dius_sanitize_scan_args( $raw_args ) {
-	$defaults = dius_get_default_scan_args();
+function media_insight_sanitize_scan_args( $raw_args ) {
+	$raw_args = is_array( $raw_args ) ? $raw_args : array();
+	$defaults = media_insight_get_default_scan_args();
 
 	return array(
-		'scan_pages'       => isset( $raw_args['scan_pages'] ) ? (bool) absint( wp_unslash( $raw_args['scan_pages'] ) ) : $defaults['scan_pages'],
-		'scan_posts'       => isset( $raw_args['scan_posts'] ) ? (bool) absint( wp_unslash( $raw_args['scan_posts'] ) ) : $defaults['scan_posts'],
+		'scan_pages'       => isset( $raw_args['scan_pages'] ) ? (bool) absint( $raw_args['scan_pages'] ) : $defaults['scan_pages'],
+		'scan_posts'       => isset( $raw_args['scan_posts'] ) ? (bool) absint( $raw_args['scan_posts'] ) : $defaults['scan_posts'],
 		'include_featured' => true,
 		'include_page_acf' => true,
-		'limit'            => isset( $raw_args['limit'] ) ? absint( wp_unslash( $raw_args['limit'] ) ) : 0,
+		'limit'            => isset( $raw_args['limit'] ) ? media_insight_normalize_scan_limit( $raw_args['limit'] ) : 0,
 	);
 }
 
 /**
- * Scan for repeated image usage.
- *
- * Scope is intentionally narrow:
- * - pages: featured image + ACF image/gallery fields
- * - posts: featured image
+ * Return post types included in the fixed scan scope.
  *
  * @param array $args Scan arguments.
- * @return array Scan report.
+ * @return array<int,string>
  */
-
-/**
- * Scan for repeated image usage.
- *
- * Scope is intentionally narrow:
- * - pages: featured image + ACF image/gallery fields
- * - posts: featured image
- *
- * @param array $args Scan arguments.
- * @return array Scan report.
- */
-function dius_scan_for_duplicate_images( $args = array() ) {
-	$state      = dius_create_scan_state( $args );
-	$batch_size = max( 1, count( $state['post_ids'] ) );
-
-	while ( empty( $state['done'] ) ) {
-		$state = dius_process_scan_batch( $state, $batch_size );
-	}
-
-	return dius_finalize_scan_state( $state );
-}
-
-/**
- * Get post IDs for the focused scan.
- *
- * @param array $args Scan arguments.
- * @return array<int>
- */
-
-/**
- * Get post IDs for the focused scan.
- *
- * @param array $args Scan arguments.
- * @return array<int>
- */
-function dius_get_scan_post_ids( $args ) {
+function media_insight_get_scan_post_types( $args ) {
 	$post_types = array();
 
 	if ( ! empty( $args['scan_pages'] ) ) {
@@ -105,30 +87,30 @@ function dius_get_scan_post_ids( $args ) {
 		$post_types[] = 'post';
 	}
 
-	if ( empty( $post_types ) ) {
-		return array();
-	}
-
-	$query_args = array(
-		'post_type'              => $post_types,
-		'post_status'            => array( 'publish' ),
-		'posts_per_page'         => ! empty( $args['limit'] ) ? absint( $args['limit'] ) : -1,
-		'orderby'                => 'ID',
-		'order'                  => 'ASC',
-		'fields'                 => 'ids',
-		'no_found_rows'          => true,
-		'update_post_meta_cache' => false,
-		'update_post_term_cache' => false,
-	);
-
-	$post_ids = get_posts( $query_args );
-
-	return array_values( array_map( 'absint', $post_ids ) );
+	return $post_types;
 }
 
 /**
- * Create an incremental scan state for AJAX/batch scans.
+ * Count publishable items for progress without loading all IDs into memory.
  *
- * @param array $args Scan arguments.
- * @return array
+ * @param array<int,string> $post_types Post types.
+ * @param array             $args       Scan arguments.
+ * @return int
  */
+function media_insight_count_scan_posts( $post_types, $args ) {
+	$total = 0;
+
+	foreach ( $post_types as $post_type ) {
+		$count = wp_count_posts( $post_type );
+
+		if ( isset( $count->publish ) ) {
+			$total += absint( $count->publish );
+		}
+	}
+
+	if ( ! empty( $args['limit'] ) ) {
+		$total = min( $total, absint( $args['limit'] ) );
+	}
+
+	return absint( $total );
+}

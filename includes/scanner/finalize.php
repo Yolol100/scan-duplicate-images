@@ -2,7 +2,7 @@
 /**
  * Scan result finalization.
  *
- * @package FeaturedAcfImageUsageScanner
+ * @package MediaInsight
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param array $usages Usage rows.
  * @return int
  */
-function dius_count_unique_usage_posts( $usages ) {
+function media_insight_count_unique_usage_posts( $usages ) {
 	$post_ids = array();
 
 	foreach ( $usages as $usage ) {
@@ -28,29 +28,23 @@ function dius_count_unique_usage_posts( $usages ) {
 }
 
 /**
- * Try to resolve an image URL to an attachment ID.
- *
- * @param string $original_url   Original URL.
- * @param string $normalized_url Normalized URL.
- * @return int
- */
-
-/**
  * Finalize a scan state.
  *
- * @param array $state Current scan state.
+ * @param array      $state   Current scan state.
+ * @param array $results Result map.
  * @return array
  */
-function dius_finalize_scan_state( $state ) {
-	$results = isset( $state['results'] ) && is_array( $state['results'] ) ? $state['results'] : array();
-	$stats   = isset( $state['stats'] ) && is_array( $state['stats'] ) ? $state['stats'] : array();
+function media_insight_finalize_scan_state( $state, $results ) {
+	$results = is_array( $results ) ? $results : array();
+
+	$stats = isset( $state['stats'] ) && is_array( $state['stats'] ) ? $state['stats'] : array();
 
 	foreach ( $results as $key => $image ) {
 		$usages = isset( $image['usages'] ) && is_array( $image['usages'] ) ? $image['usages'] : array();
 
 		$results[ $key ]['usages']            = array_values( $usages );
 		$results[ $key ]['usage_count']       = count( $usages );
-		$results[ $key ]['unique_post_count'] = dius_count_unique_usage_posts( $usages );
+		$results[ $key ]['unique_post_count'] = media_insight_count_unique_usage_posts( $usages );
 	}
 
 	$duplicates = array_filter(
@@ -67,14 +61,20 @@ function dius_finalize_scan_state( $state ) {
 		}
 	);
 
-	$stats['total_usages']    = array_sum( array_map( static function ( $image ) { return absint( $image['usage_count'] ?? 0 ); }, $results ) );
+	$stats['total_usages']    = array_sum(
+		array_map(
+			static function ( $image ) {
+				return absint( $image['usage_count'] ?? 0 );
+			},
+			$results
+		)
+	);
 	$stats['unique_images']   = count( $results );
 	$stats['repeated_images'] = count( $duplicates );
 
 	return array(
-		'args'       => isset( $state['args'] ) && is_array( $state['args'] ) ? $state['args'] : dius_get_default_scan_args(),
+		'args'       => isset( $state['args'] ) && is_array( $state['args'] ) ? $state['args'] : media_insight_get_default_scan_args(),
 		'stats'      => $stats,
-		'images'     => $results,
 		'duplicates' => array_values( $duplicates ),
 	);
 }
@@ -85,3 +85,10 @@ function dius_finalize_scan_state( $state ) {
  * @param array $array Array to check.
  * @return bool
  */
+function media_insight_is_assoc_array( $array ) {
+	if ( array() === $array ) {
+		return false;
+	}
+
+	return array_keys( $array ) !== range( 0, count( $array ) - 1 );
+}

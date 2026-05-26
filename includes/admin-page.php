@@ -1,16 +1,13 @@
 <?php
 /**
- * Admin module loader for Featured & ACF Image Usage Scanner.
+ * Admin module loader for Media Insight.
  *
- * @package FeaturedAcfImageUsageScanner
+ * @package MediaInsight
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once DIUS_PLUGIN_PATH . 'includes/admin/helpers.php';
-require_once DIUS_PLUGIN_PATH . 'includes/admin/render.php';
-require_once DIUS_PLUGIN_PATH . 'includes/admin/menu.php';
-require_once DIUS_PLUGIN_PATH . 'includes/admin/export.php';
-require_once DIUS_PLUGIN_PATH . 'includes/admin/ajax.php';
+require_once MEDIA_INSIGHT_PLUGIN_PATH . 'includes/admin/menu.php';
+require_once MEDIA_INSIGHT_PLUGIN_PATH . 'includes/admin/export.php';

@@ -1,33 +1,35 @@
-=== Featured & ACF Image Usage Scanner ===
+=== Media Insight ===
 Contributors: webactueel
 Tags: media, featured image, acf, image audit
 Requires at least: 6.0
-Tested up to: 7.0
+Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 3.4.0
-License: GPLv2 or later
+Stable tag: 4.2.10
+License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Find repeated featured images on pages/posts and ACF image/gallery fields on pages.
 
 == Description ==
 
-Featured & ACF Image Usage Scanner is a focused admin-only audit tool.
+Media Insight is a focused admin-only audit tool. It is read-only and does not delete, replace, or update site content.
 
-It scans only:
+The scan runs in small batches through the WordPress REST API and stores progress in temporary cache data.
+
+The fixed scan scope is:
 
 * Pages: featured image.
 * Pages: ACF image and gallery fields.
 * Posts: featured image.
 
-The plugin is read-only. It does not delete, replace, or update site content.
-
 == Installation ==
 
 1. Upload the plugin folder to `/wp-content/plugins/` or install the ZIP in WordPress admin.
+
+Important: the release ZIP uses the fixed WordPress plugin folder `media-insight/`. Uploading a newer ZIP with this same folder replaces earlier 4.2.4+ releases through WordPress admin. If an old rootless 4.2.3 package was installed into a different folder, deactivate and remove that old copy once, then install this ZIP.
 2. Activate the plugin.
-3. Open **Featured & ACF Images** in wp-admin.
-4. Start the focused scan.
+3. Open **Media Insight** in wp-admin.
+4. Start the scan.
 
 == Frequently Asked Questions ==
 
@@ -39,50 +41,75 @@ No. The plugin is read-only and only reports repeated usage.
 
 Featured images on pages and posts, plus ACF image/gallery fields on pages.
 
+= How does the scan run? =
+
+The admin app starts a REST scan, processes small batches, stores progress in cache/transients, and queues WP Cron so large scans can continue outside a single request.
+
 == Changelog ==
 
-= 3.4.0 =
-* Made the admin layout full width for better use of WordPress admin space.
-* Reduced the visual weight of the top hero section with a more compact heading and spacing.
-* Cleaned up duplicate docblocks in admin files.
+= 4.2.10 =
+* Redesigned the admin app toward native WordPress/Gutenberg component styling.
+* Added a clearer two-column scan workflow with status, guidance, fixed scope and cleaner result cards.
+* Improved responsive admin layout, status badges, progress details and empty-result states.
 
-= 3.3.9 =
-* Split oversized admin and scanner files into focused WordPress-friendly modules for clearer maintenance.
-* Kept the public plugin hooks and scan behavior unchanged.
+= 4.2.8 =
+* Kept the fixed plugin directory slug `media-insight` for WordPress upload replacement.
+* Bumped the package version so WordPress recognizes this ZIP as newer than previous releases.
+* Added explicit upgrade guidance for installations created from older rootless release packages.
 
-= 3.3.8 =
-* Centralized admin POST normalization before scan and export sanitization.
-* Added the missing scoped form CSS selector to keep admin layout intent explicit.
+= 4.2.7 =
+* Prevented cancel requests from deleting completed or failed scan reports.
+* Made terminal scan statuses immutable against stale worker overwrites.
+* Forced completed scans to report 100% progress even when content changes during a scan.
+* Cleaned runtime state when scans fail because the owner loses scan permissions.
 
-= 3.3.7 =
-* Removed unused AJAX localization text and unused report payload fields.
-* Kept the scan scope unchanged while reducing stored report noise.
+= 4.2.6 =
+* Hardened cancellation so a cancelled scan cannot be overwritten by a stale worker status.
+* Strengthened CSV formula-injection protection for values with leading whitespace.
+* Aligned REST scan-limit validation with backend capping behavior.
 
-= 3.3.6 =
-* Removed duplicated ACF context labels for nested group/repeater/clone structures.
-* Avoided storing an unused AJAX scan-state transient when no pages or posts match the scan.
+= 4.2.5 =
+* Fixed cancellation handling so active workers stop before writing complete or failed statuses.
+* Fixed scan progress display for completed scans with zero matching items.
+* Tightened scan limit validation so negative REST values cannot be converted into positive limits.
 
-= 3.3.5 =
-* Preserved full parent context when scanning nested ACF group/repeater/clone fields.
-* Reduced duplicate suppression risk when the same nested subfield label appears in multiple parent ACF structures.
+= 4.2.3 =
+* Improved cron cleanup during uninstall.
+* Restored the previous current user after background scan processing.
+* Updated release metadata.
 
-= 3.3.4 =
-* Removed unused backwards-compatibility wrappers and obsolete CSS left from earlier broad scanner versions.
-* Removed an unused transient/media constant and simplified internal ACF fallback calls.
-* Confirmed the release ZIP contains only runtime plugin files.
+= 4.1.8 =
+* Reduced repeated runtime registry writes.
+* Registered scheduled scan events explicitly for deactivation cleanup.
+* Added full GPLv2 license text.
 
-= 3.3.3 =
-* Improved ACF flexible content/layout scanning for nested image and gallery fields.
-* Prevented ACF usage counters from increasing when a candidate image was not actually added to the report.
-* Tightened report wording to explicitly mention ACF image and gallery fields.
+= 4.1.7 =
+* Cleaned the release package and kept only runtime assets.
+* Added guarded build metadata.
+* Aligned release metadata and license identifiers.
 
-= 3.3.2 =
-* Fixed ACF gallery fields that return attachment IDs.
-* Restricted the ACF scan to image and gallery fields only.
-* Excluded SVG/icon-like files from the image matcher to reduce icon noise.
+= 4.1.6 =
+* Removed manual text-domain loading.
+* Replaced broad uninstall cleanup with registered runtime-key cleanup.
 
-= 3.3.0 =
-* Refocused the plugin to only scan featured images and ACF image fields.
-* Simplified the admin UI and report output.
-* Removed broad scan flows from the active scanner.
+= 4.1.5 =
+* Tightened export input handling.
+* Improved admin script settings output.
 
+= 4.1.4 =
+* Standardized Media Insight prefixes.
+* Improved REST scan ID validation.
+
+= 4.1.3 =
+* Improved CSV output.
+* Improved stored usage sanitization.
+
+= 4.1.2 =
+* Cleaned release metadata and CSS.
+
+= 4.1.1 =
+* Improved admin state handling and export headers.
+
+= 4.1.0 =
+* Added REST-driven scan processing and chunked scan results.
+* Simplified the WordPress admin screen.
