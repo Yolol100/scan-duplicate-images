@@ -4,7 +4,7 @@ Tags: media, featured image, acf, image audit
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 4.2.10
+Stable tag: 4.2.14
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,6 +46,22 @@ Featured images on pages and posts, plus ACF image/gallery fields on pages.
 The admin app starts a REST scan, processes small batches, stores progress in cache/transients, and queues WP Cron so large scans can continue outside a single request.
 
 == Changelog ==
+
+= 4.2.14 =
+* Returned failed/cancelled scan statuses from the process REST route instead of leaving the admin app with a stale running state.
+* Refreshed scan status after transient process errors so the UI recovers from expired-state and permission-loss edge cases.
+* Converted unrecoverable process/refresh errors into a visible failed state instead of leaving the scan controls stuck in running mode.
+
+= 4.2.12 =
+* Added a client-side start guard to prevent fast double-click duplicate scan requests.
+* Normalized terminal progress metadata so complete scans cannot show a misleading processed/total mismatch.
+* Cleaned empty runtime registry groups after unregistering runtime keys.
+
+= 4.2.11 =
+* Hardened the admin app against missing individual wp-components fallbacks.
+* Prevented accidental duplicate scan starts while a scan is still running after a transient process error.
+* Normalized negative client-side scan limits before REST submission.
+* Added noopener to external image result links.
 
 = 4.2.10 =
 * Redesigned the admin app toward native WordPress/Gutenberg component styling.

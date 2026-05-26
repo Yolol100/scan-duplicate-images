@@ -54,6 +54,16 @@ function media_insight_unregister_runtime_key( $kind, $key ) {
 	}
 
 	unset( $registry[ $kind ][ $key ] );
+
+	if ( isset( $registry[ $kind ] ) && empty( $registry[ $kind ] ) ) {
+		unset( $registry[ $kind ] );
+	}
+
+	if ( empty( $registry ) ) {
+		delete_option( 'media_insight_runtime_registry' );
+		return;
+	}
+
 	update_option( 'media_insight_runtime_registry', $registry, false );
 }
 
@@ -278,7 +288,14 @@ function media_insight_set_scan_status( $scan_id, $user_id, $status ) {
 	$status['processed']  = absint( $status['processed'] );
 	$status['total']      = absint( $status['total'] );
 	$status['status']     = sanitize_key( $status['status'] );
-	$status['progress']   = 'complete' === $status['status'] ? 100 : ( $status['total'] > 0 ? min( 100, round( ( $status['processed'] / $status['total'] ) * 100 ) ) : 100 );
+
+	if ( 'complete' === $status['status'] ) {
+		$status['processed'] = max( $status['processed'], $status['total'] );
+		$status['progress']  = 100;
+	} else {
+		$status['progress'] = $status['total'] > 0 ? min( 100, round( ( $status['processed'] / $status['total'] ) * 100 ) ) : 0;
+	}
+
 	$status['message']    = sanitize_text_field( $status['message'] );
 	$status['updated_at'] = time();
 

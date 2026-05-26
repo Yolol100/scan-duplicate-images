@@ -187,6 +187,12 @@ function media_insight_rest_process_scan( WP_REST_Request $request ) {
 	$result  = media_insight_run_scan_batches( $scan_id, $user_id, 1, 3 );
 
 	if ( empty( $result['success'] ) ) {
+		$status = media_insight_get_scan_status( $scan_id, $user_id );
+
+		if ( is_array( $status ) && in_array( sanitize_key( $status['status'] ?? '' ), array( 'failed', 'cancelled' ), true ) ) {
+			return rest_ensure_response( $status );
+		}
+
 		return new WP_Error( 'media_insight_scan_process_failed', $result['message'], array( 'status' => 410 ) );
 	}
 

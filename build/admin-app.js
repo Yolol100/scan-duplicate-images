@@ -10,20 +10,43 @@
 	var el = wp.element.createElement;
 	var useState = wp.element.useState;
 	var useEffect = wp.element.useEffect;
+	var useRef = wp.element.useRef;
 	var render = wp.element.render;
 	var apiFetch = wp.apiFetch;
 	var components = wp.components;
 	var __ = wp.i18n && wp.i18n.__ ? wp.i18n.__ : function ( text ) { return text; };
 	var sprintf = wp.i18n && wp.i18n.sprintf ? wp.i18n.sprintf : function ( text ) { return text; };
 	var speak = wp.a11y && wp.a11y.speak ? wp.a11y.speak : function () {};
-	var Card = components.Card;
-	var CardBody = components.CardBody;
-	var CardHeader = components.CardHeader;
-	var Button = components.Button;
-	var Notice = components.Notice;
-	var TextControl = components.TextControl;
+	var Card = components.Card || function ( props ) {
+		var cardProps = Object.assign( {}, props, { className: props.className ? props.className + ' components-card' : 'components-card' } );
+		return el( 'div', cardProps, props.children );
+	};
+	var CardBody = components.CardBody || function ( props ) {
+		var bodyProps = Object.assign( {}, props, { className: props.className ? props.className + ' components-card__body' : 'components-card__body' } );
+		return el( 'div', bodyProps, props.children );
+	};
+	var CardHeader = components.CardHeader || function ( props ) {
+		var headerProps = Object.assign( {}, props, { className: props.className ? props.className + ' components-card__header' : 'components-card__header' } );
+		return el( 'div', headerProps, props.children );
+	};
+	var Button = components.Button || function ( props ) {
+		var buttonProps = Object.assign( {}, props );
+		delete buttonProps.isBusy;
+		delete buttonProps.variant;
+		return el( 'button', buttonProps, props.children );
+	};
+	var Notice = components.Notice || function ( props ) { return el( 'div', props, props.children ); };
+	var TextControl = components.TextControl || function ( props ) {
+		return el( 'label', { className: 'media-insight-text-control-fallback' },
+			el( 'span', {}, props.label ),
+			el( 'input', { type: props.type || 'text', min: props.min, max: props.max, value: props.value, onChange: function ( event ) { props.onChange( event.target.value ); } } ),
+			props.help ? el( 'span', { className: 'description' }, props.help ) : null
+		);
+	};
 
-	apiFetch.use( apiFetch.createNonceMiddleware( settings.restNonce ) );
+	if ( apiFetch.createNonceMiddleware ) {
+		apiFetch.use( apiFetch.createNonceMiddleware( settings.restNonce ) );
+	}
 
 	function restPath( path ) {
 		return '/' + settings.restNamespace + path;
@@ -271,7 +294,7 @@
 					el( CardBody, {},
 						el( 'div', { className: 'media-insight-result-title-row' },
 							el( 'div', {},
-								el( 'h3', {}, image.url ? el( 'a', { href: image.url, target: '_blank', rel: 'noreferrer' }, image.filename || image.key ) : ( image.filename || image.key ) ),
+								el( 'h3', {}, image.url ? el( 'a', { href: image.url, target: '_blank', rel: 'noopener noreferrer' }, image.filename || image.key ) : ( image.filename || image.key ) ),
 								el( 'p', { className: 'media-insight-muted' }, sprintf( __( '%1$d pages/posts, %2$d references', 'media-insight' ), image.unique_post_count || 0, image.usage_count || 0 ) )
 							),
 							el( 'span', { className: 'media-insight-badge is-warning' }, __( 'Repeated', 'media-insight' ) )
@@ -302,30 +325,43 @@
 		var busyState = useState( false );
 		var busy = busyState[0];
 		var setBusy = busyState[1];
+		var startRequestRef = useRef ? useRef( false ) : { current: false };
 		var errorState = useState( '' );
 		var error = errorState[0];
 		var setError = errorState[1];
 
 		function updateFromResponse( response ) {
 			setStatus( response );
-			if ( response && response.report ) {
+			if ( response && response.report && response.status === 'complete' ) {
 				setReport( response.report );
+			} else if ( ! response || response.status !== 'complete' ) {
+				setReport( null );
 			}
 		}
 
 		function startScan() {
+			if ( startRequestRef.current || busy || isRunningStatus( status ) ) {
+				return;
+			}
+
+			startRequestRef.current = true;
 			setBusy( true );
 			setError( '' );
 			setReport( null );
 			safeSpeak( settings.i18n.queued || __( 'Scan queued.', 'media-insight' ) );
 
+			var requestedLimit = parseInt( limit, 10 );
+			requestedLimit = isFinite( requestedLimit ) ? Math.max( 0, requestedLimit ) : 0;
+
 			apiFetch( {
 				path: restPath( '/scans' ),
 				method: 'POST',
-				data: { limit: parseInt( limit, 10 ) || 0 }
+				data: { limit: requestedLimit }
 			} ).then( function ( response ) {
+				startRequestRef.current = false;
 				updateFromResponse( response );
 			} ).catch( function ( apiError ) {
+				startRequestRef.current = false;
 				setBusy( false );
 				setError( apiError && apiError.message ? apiError.message : settings.i18n.failed );
 			} );
@@ -369,6 +405,18 @@
 				} ).catch( function ( apiError ) {
 					setBusy( false );
 					setError( apiError && apiError.message ? apiError.message : settings.i18n.failed );
+
+					apiFetch( {
+						path: restPath( '/scans/' + encodeURIComponent( status.scan_id ) ),
+						method: 'GET'
+					} ).then( function ( refreshResponse ) {
+						updateFromResponse( refreshResponse );
+					} ).catch( function () {
+						setStatus( Object.assign( {}, status, {
+							status: 'failed',
+							message: apiError && apiError.message ? apiError.message : settings.i18n.failed
+						} ) );
+					} );
 				} );
 			}, 650 );
 
@@ -378,6 +426,7 @@
 		}, [ status ] );
 
 		var running = isRunningStatus( status );
+		var startDisabled = busy || running;
 
 		return el( 'div', { className: 'media-insight-shell' },
 			el( 'h1', { className: 'screen-reader-text' }, __( 'Media Insight', 'media-insight' ) ),
@@ -400,7 +449,7 @@
 								onChange: function ( value ) { setLimit( value ); }
 							} ),
 							el( 'div', { className: 'media-insight-actions' },
-								el( Button, { variant: 'primary', isBusy: busy, disabled: busy, onClick: startScan }, busy ? __( 'Scanning…', 'media-insight' ) : __( 'Start scan', 'media-insight' ) ),
+								el( Button, { variant: 'primary', isBusy: running || busy, disabled: startDisabled, onClick: startScan }, running || busy ? __( 'Scanning…', 'media-insight' ) : __( 'Start scan', 'media-insight' ) ),
 								running ? el( Button, { variant: 'secondary', onClick: cancelScan }, __( 'Cancel scan', 'media-insight' ) ) : null
 							),
 							el( 'p', { className: 'media-insight-help-text' }, __( 'Tip: use 100 or 500 first on large staging sites to check runtime and ACF coverage.', 'media-insight' ) )
@@ -420,6 +469,10 @@
 
 	var root = document.getElementById( 'media-insight-root' );
 	if ( root ) {
-		render( el( App ), root );
+		if ( render ) {
+			render( el( App ), root );
+		} else if ( wp.element.createRoot ) {
+			wp.element.createRoot( root ).render( el( App ) );
+		}
 	}
 }() );

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Media Insight
  * Description: Scans featured images and ACF image/gallery fields for repeated media usage in WordPress content.
- * Version: 4.2.10
+ * Version: 4.2.14
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Webactueel
@@ -30,7 +30,7 @@ if ( defined( 'MEDIA_INSIGHT_PLUGIN_FILE' ) || function_exists( 'media_insight_g
 define( 'MEDIA_INSIGHT_PLUGIN_FILE', __FILE__ );
 define( 'MEDIA_INSIGHT_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'MEDIA_INSIGHT_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'MEDIA_INSIGHT_VERSION', '4.2.10' );
+define( 'MEDIA_INSIGHT_VERSION', '4.2.14' );
 define( 'MEDIA_INSIGHT_MENU_SLUG', 'media-insight' );
 define( 'MEDIA_INSIGHT_REST_NAMESPACE', 'media-insight/v2' );
 define( 'MEDIA_INSIGHT_REST_BATCH_SIZE', 50 );

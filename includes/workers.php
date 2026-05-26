@@ -355,12 +355,19 @@ function media_insight_run_scan_batches( $scan_id, $user_id, $max_batches = 1, $
 			media_insight_clear_scheduled_scan( $scan_id, $user_id );
 
 			$status = media_insight_get_scan_status( $scan_id, $user_id );
-			if ( is_array( $status ) && 'cancelled' === ( $status['status'] ?? '' ) ) {
+			$status_key = is_array( $status ) ? sanitize_key( $status['status'] ?? '' ) : '';
+
+			if ( 'complete' !== $status_key ) {
 				media_insight_cache_delete( 'report', $scan_id, $user_id );
-				return array( 'success' => true, 'status' => $status );
+				return array(
+					'success' => true,
+					'status'  => is_array( $status ) ? $status : array(
+						'status'  => 'failed',
+						'message' => __( 'The scan could not be finalized. Please start a new scan.', 'media-insight' ),
+					),
+				);
 			}
 
-			$status = is_array( $status ) ? $status : array();
 			$status['report'] = media_insight_prepare_report_payload( $report );
 
 			return array( 'success' => true, 'status' => $status );
