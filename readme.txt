@@ -4,7 +4,7 @@ Tags: media, featured image, acf, image audit
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 4.2.14
+Stable tag: 4.2.15
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,7 +47,7 @@ The admin app starts a REST scan, processes small batches, stores progress in ca
 
 == Changelog ==
 
-= 4.2.14 =
+= 4.2.15 =
 * Returned failed/cancelled scan statuses from the process REST route instead of leaving the admin app with a stale running state.
 * Refreshed scan status after transient process errors so the UI recovers from expired-state and permission-loss edge cases.
 * Converted unrecoverable process/refresh errors into a visible failed state instead of leaving the scan controls stuck in running mode.

@@ -272,7 +272,8 @@
 		var stats = report.stats || {};
 		var duplicates = report.duplicates || [];
 		var exportAction = canExport ? el( Button, {
-			variant: 'secondary',
+			variant: 'primary',
+			className: 'media-insight-export-button',
 			onClick: function () {
 				window.location.href = settings.adminPostUrl + '?action=media_insight_export_csv&scan_id=' + encodeURIComponent( props.scanId ) + '&media_insight_export_nonce=' + encodeURIComponent( settings.exportNonce );
 			}
