@@ -174,7 +174,7 @@ function media_insight_process_scan_batch( $state, $batch_size = 25 ) {
 
 		if ( ! $post instanceof WP_Post ) {
 			$state['processed'] = absint( $state['processed'] ?? 0 ) + 1;
-				continue;
+			continue;
 		}
 
 		$state['stats']['scanned_items']++;

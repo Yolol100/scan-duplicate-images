@@ -19,6 +19,10 @@ function media_insight_count_unique_usage_posts( $usages ) {
 	$post_ids = array();
 
 	foreach ( $usages as $usage ) {
+		if ( ! is_array( $usage ) ) {
+			continue;
+		}
+
 		if ( isset( $usage['post_id'] ) ) {
 			$post_ids[] = absint( $usage['post_id'] );
 		}
@@ -30,7 +34,7 @@ function media_insight_count_unique_usage_posts( $usages ) {
 /**
  * Finalize a scan state.
  *
- * @param array      $state   Current scan state.
+ * @param array $state   Current scan state.
  * @param array $results Result map.
  * @return array
  */
@@ -40,6 +44,11 @@ function media_insight_finalize_scan_state( $state, $results ) {
 	$stats = isset( $state['stats'] ) && is_array( $state['stats'] ) ? $state['stats'] : array();
 
 	foreach ( $results as $key => $image ) {
+		if ( ! is_array( $image ) ) {
+			unset( $results[ $key ] );
+			continue;
+		}
+
 		$usages = isset( $image['usages'] ) && is_array( $image['usages'] ) ? $image['usages'] : array();
 
 		$results[ $key ]['usages']            = array_values( $usages );

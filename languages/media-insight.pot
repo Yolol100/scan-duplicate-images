@@ -1,0 +1,336 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Media Insight 4.3.10\n"
+"Report-Msgid-Bugs-To: https://webactueel.nl/\n"
+"POT-Creation-Date: 2026-05-27 00:00+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: media-insight\n"
+
+#: build/admin-app.js
+msgid "%1$s items, %2$s references"
+msgstr ""
+
+#: build/admin-app.js
+msgid "%s items maximum"
+msgstr ""
+
+#: build/admin-app.js
+msgid "A focused scope keeps reports clear, repeatable and safe to share with clients."
+msgstr ""
+
+#: build/admin-app.js
+msgid "ACF gallery"
+msgstr ""
+
+#: build/admin-app.js
+msgid "ACF image"
+msgstr ""
+
+#: build/admin-app.js
+msgid "ACF is not active, so only featured images were scanned."
+msgstr ""
+
+#: build/admin-app.js
+msgid "All supported content"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Cancel scan"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Cancelled"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Choose a predictable scan size. The scan is read-only and runs in small WordPress batches."
+msgstr ""
+
+#: build/admin-app.js
+msgid "Complete"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Content"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Designed for client review"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Edit media"
+msgstr ""
+
+#: build/admin-app.js media-insight.php
+msgid "Export CSV"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Failed"
+msgstr ""
+
+#: build/admin-app.js includes/scanner/featured.php
+msgid "Featured image"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Find repeated featured images and ACF image usage without changing media or content."
+msgstr ""
+
+#: build/admin-app.js
+msgid "Fixed audit scope"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Full site"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Full site scan"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Image preview"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Images found"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Manual limit"
+msgstr ""
+
+#: build/admin-app.js includes/admin/menu.php
+msgid "Media Insight"
+msgstr ""
+
+#: includes/admin/menu.php
+msgid "Media Insight requires JavaScript for the progressive scan interface."
+msgstr ""
+
+#: media-insight.php
+msgid "Media Insight was not loaded because another copy or conflicting version is already active."
+msgstr ""
+
+#: build/admin-app.js
+msgid "No repeated media found"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Open image"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Page"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Pages: ACF image and gallery fields"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Pages: featured images"
+msgstr ""
+
+#: includes/admin/export.php includes/admin/menu.php
+msgid "Permission denied"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Post"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Posts: featured images"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Queued"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Quick"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Read-only"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Ready"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Ready for a read-only scan"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Recommended start"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Repeated"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Repeated images"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Repeated media usage found by the latest complete scan."
+msgstr ""
+
+#: includes/admin/export.php
+msgid "Report not found"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Reports are grouped by image, with source labels for featured images and ACF fields."
+msgstr ""
+
+#: build/admin-app.js
+msgid "Results"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Results will appear here after a complete scan."
+msgstr ""
+
+#: build/admin-app.js
+msgid "Running"
+msgstr ""
+
+#: build/admin-app.js includes/rest.php media-insight.php
+msgid "Scan cancelled."
+msgstr ""
+
+#: build/admin-app.js includes/workers.php media-insight.php
+msgid "Scan complete."
+msgstr ""
+
+#: build/admin-app.js
+msgid "Scan progress"
+msgstr ""
+
+#: build/admin-app.js includes/rest.php media-insight.php
+msgid "Scan queued."
+msgstr ""
+
+#: build/admin-app.js
+msgid "Scan setup"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Scan size"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Scanned items"
+msgstr ""
+
+#: build/admin-app.js includes/workers.php media-insight.php
+msgid "Scanning media usage..."
+msgstr ""
+
+#: build/admin-app.js
+msgid "Scanning..."
+msgstr ""
+
+#: build/admin-app.js
+msgid "Small staging check"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Standard"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Start scan"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Start with the standard limit, review the first report, then run a full scan when needed."
+msgstr ""
+
+#: build/admin-app.js
+msgid "Start with the Standard scan"
+msgstr ""
+
+#: build/admin-app.js
+msgid "The latest complete scan did not find repeated featured images or supported ACF image fields."
+msgstr ""
+
+#: includes/admin/export.php
+msgid "The report was not found or has expired. Please run a new scan."
+msgstr ""
+
+#: includes/workers.php
+msgid "The scan could not be finalized. Please start a new scan."
+msgstr ""
+
+#: build/admin-app.js media-insight.php
+msgid "The scan failed. Please try again or reduce the scan limit."
+msgstr ""
+
+#: includes/workers.php
+msgid "The scan owner no longer has permission to run scans."
+msgstr ""
+
+#: includes/workers.php
+msgid "The scan state expired. Please start a new scan."
+msgstr ""
+
+#: includes/rest.php includes/workers.php
+msgid "The scan was not found or has expired."
+msgstr ""
+
+#: build/admin-app.js
+msgid "Untitled"
+msgstr ""
+
+#: build/admin-app.js
+msgid "Use 0 for all supported content. Maximum: %s."
+msgstr ""
+
+#: build/admin-app.js
+msgid "Version %s"
+msgstr ""
+
+#: build/admin-app.js
+msgid "WordPress media audit"
+msgstr ""
+
+#: includes/admin/menu.php
+msgid "You do not have permission to access this page."
+msgstr ""
+
+#: includes/admin/export.php
+msgid "You do not have permission to export this report."
+msgstr ""
+
+#: build/admin-app.js
+msgid "You will get a clean list of repeated images, usage locations, edit links and CSV export when the scan completes."
+msgstr ""
+
+
+msgid "100 items"
+msgstr ""
+
+msgid "500 items"
+msgstr ""
+
+msgid "Advanced options"
+msgstr ""
+
+msgid "Included in scan"
+msgstr ""
+
+msgid "Reports stay clear, repeatable and safe to share with clients."
+msgstr ""
+
+msgid "Choose a predictable, read-only scan size. Media Insight processes content in small WordPress batches."
+msgstr ""

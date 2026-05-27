@@ -85,6 +85,61 @@ function media_insight_attachment_is_supported_image( $attachment_id ) {
 }
 
 /**
+ * Get a small preview URL for an attachment.
+ *
+ * @param int $attachment_id Attachment ID.
+ * @return string
+ */
+function media_insight_get_attachment_preview_url( $attachment_id ) {
+	$attachment_id = absint( $attachment_id );
+
+	if ( ! $attachment_id ) {
+		return '';
+	}
+
+	$thumbnail = wp_get_attachment_image_src( $attachment_id, 'thumbnail' );
+	if ( is_array( $thumbnail ) && ! empty( $thumbnail[0] ) ) {
+		return esc_url_raw( $thumbnail[0] );
+	}
+
+	$url = wp_get_attachment_url( $attachment_id );
+	return $url ? esc_url_raw( $url ) : '';
+}
+
+/**
+ * Get the media library edit URL for an attachment.
+ *
+ * @param int $attachment_id Attachment ID.
+ * @return string
+ */
+function media_insight_get_attachment_edit_url( $attachment_id ) {
+	$attachment_id = absint( $attachment_id );
+
+	if ( ! $attachment_id ) {
+		return '';
+	}
+
+	$edit_url = get_edit_post_link( $attachment_id, 'raw' );
+	return $edit_url ? esc_url_raw( $edit_url ) : '';
+}
+
+/**
+ * Get sanitized attachment alt text.
+ *
+ * @param int $attachment_id Attachment ID.
+ * @return string
+ */
+function media_insight_get_attachment_alt_text( $attachment_id ) {
+	$attachment_id = absint( $attachment_id );
+
+	if ( ! $attachment_id ) {
+		return '';
+	}
+
+	return sanitize_text_field( get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ) );
+}
+
+/**
  * Add an attachment usage by ID.
  *
  * @param array   $results       Results array.
@@ -126,17 +181,23 @@ function media_insight_add_image_usage( &$results, $image_url, WP_Post $post, $s
 		$attachment_id = media_insight_get_attachment_id_from_url( $image_url, $normalized_url );
 	}
 
-	$key         = $attachment_id ? 'attachment:' . absint( $attachment_id ) : 'url:' . $normalized_url;
-	$display_url = $attachment_id ? wp_get_attachment_url( $attachment_id ) : $normalized_url;
-	$display_url = $display_url ? $display_url : $normalized_url;
-	$filename    = basename( (string) wp_parse_url( $display_url, PHP_URL_PATH ) );
+	$key            = $attachment_id ? 'attachment:' . absint( $attachment_id ) : 'url:' . $normalized_url;
+	$display_url    = $attachment_id ? wp_get_attachment_url( $attachment_id ) : $normalized_url;
+	$display_url    = $display_url ? $display_url : $normalized_url;
+	$filename       = basename( (string) wp_parse_url( $display_url, PHP_URL_PATH ) );
+	$thumbnail_url  = $attachment_id ? media_insight_get_attachment_preview_url( $attachment_id ) : esc_url_raw( $display_url );
+	$media_edit_url = $attachment_id ? media_insight_get_attachment_edit_url( $attachment_id ) : '';
+	$alt_text       = $attachment_id ? media_insight_get_attachment_alt_text( $attachment_id ) : '';
 
 	if ( ! isset( $results[ $key ] ) ) {
 		$results[ $key ] = array(
 			'key'               => $key,
 			'attachment_id'     => $attachment_id ? absint( $attachment_id ) : 0,
-			'url'               => $display_url,
-			'filename'          => $filename,
+			'url'               => esc_url_raw( $display_url ),
+			'thumbnail_url'     => $thumbnail_url,
+			'media_edit_url'    => $media_edit_url,
+			'alt_text'          => $alt_text,
+			'filename'          => sanitize_file_name( $filename ),
 			'usages'            => array(),
 			'usage_count'       => 0,
 			'unique_post_count' => 0,
@@ -186,13 +247,41 @@ function media_insight_get_attachment_id_from_url( $original_url, $normalized_ur
 }
 
 /**
+ * Check whether a URL scheme is safe for admin links.
+ *
+ * @param string $url URL to check.
+ * @return bool
+ */
+function media_insight_has_supported_image_url_scheme( $url ) {
+	$url = trim( (string) $url );
+
+	if ( '' === $url || 0 === strpos( $url, '/' ) ) {
+		return true;
+	}
+
+	$scheme = wp_parse_url( $url, PHP_URL_SCHEME );
+
+	if ( null === $scheme ) {
+		return true;
+	}
+
+	return in_array( strtolower( (string) $scheme ), array( 'http', 'https' ), true );
+}
+
+/**
  * Check whether a URL points to a supported image file.
  *
  * @param string $url URL to check.
  * @return bool
  */
 function media_insight_is_image_url( $url ) {
-	$path = wp_parse_url( html_entity_decode( (string) $url ), PHP_URL_PATH );
+	$url = html_entity_decode( (string) $url, ENT_QUOTES, get_bloginfo( 'charset' ) );
+
+	if ( ! media_insight_has_supported_image_url_scheme( $url ) ) {
+		return false;
+	}
+
+	$path = wp_parse_url( $url, PHP_URL_PATH );
 
 	if ( ! is_string( $path ) ) {
 		return false;
@@ -210,35 +299,47 @@ function media_insight_is_image_url( $url ) {
 function media_insight_normalize_image_url( $image_url ) {
 	$image_url = trim( html_entity_decode( (string) $image_url, ENT_QUOTES, get_bloginfo( 'charset' ) ) );
 
-	if ( '' === $image_url ) {
+	if ( '' === $image_url || ! media_insight_has_supported_image_url_scheme( $image_url ) ) {
 		return '';
 	}
 
-	$split = preg_split( '/[?#]/', $image_url, 2 );
+	$split     = preg_split( '/[?#]/', $image_url, 2 );
 	$image_url = is_array( $split ) && isset( $split[0] ) ? $split[0] : $image_url;
+
+	if ( ! media_insight_has_supported_image_url_scheme( $image_url ) ) {
+		return '';
+	}
 
 	if ( 0 === strpos( $image_url, '//' ) ) {
 		$image_url = ( is_ssl() ? 'https:' : 'http:' ) . $image_url;
 	}
 
-	$path = wp_parse_url( $image_url, PHP_URL_PATH );
+	$parts = wp_parse_url( $image_url );
 
-	if ( ! is_string( $path ) || '' === $path ) {
+	if ( ! is_array( $parts ) ) {
+		return '';
+	}
+
+	$path = isset( $parts['path'] ) ? (string) $parts['path'] : '';
+
+	if ( '' === $path ) {
 		return '';
 	}
 
 	$path = preg_replace( '/-\d+x\d+(?=\.(?:jpg|jpeg|png|gif|webp|avif)$)/i', '', $path );
 	$path = preg_replace( '/-scaled(?=\.(?:jpg|jpeg|png|gif|webp|avif)$)/i', '', $path );
 
-	$parts = wp_parse_url( $image_url );
-
 	if ( 0 === strpos( $image_url, '/' ) ) {
 		$parts = wp_parse_url( home_url( '/' ) );
 	}
 
-	$scheme = isset( $parts['scheme'] ) ? strtolower( $parts['scheme'] ) : 'https';
-	$host   = isset( $parts['host'] ) ? strtolower( $parts['host'] ) : '';
+	$scheme = isset( $parts['scheme'] ) ? strtolower( (string) $parts['scheme'] ) : 'https';
+	$host   = isset( $parts['host'] ) ? strtolower( (string) $parts['host'] ) : '';
 	$port   = isset( $parts['port'] ) ? ':' . absint( $parts['port'] ) : '';
+
+	if ( '' !== $scheme && ! in_array( $scheme, array( 'http', 'https' ), true ) ) {
+		return '';
+	}
 
 	return $host ? $scheme . '://' . $host . $port . $path : $path;
 }

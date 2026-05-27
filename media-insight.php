@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Media Insight
  * Description: Scans featured images and ACF image/gallery fields for repeated media usage in WordPress content.
- * Version: 4.2.15
+ * Version: 4.3.10
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Webactueel
@@ -10,6 +10,7 @@
  * Domain Path: /languages
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Update URI: false
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -30,7 +31,7 @@ if ( defined( 'MEDIA_INSIGHT_PLUGIN_FILE' ) || function_exists( 'media_insight_g
 define( 'MEDIA_INSIGHT_PLUGIN_FILE', __FILE__ );
 define( 'MEDIA_INSIGHT_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'MEDIA_INSIGHT_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'MEDIA_INSIGHT_VERSION', '4.2.15' );
+define( 'MEDIA_INSIGHT_VERSION', '4.3.10' );
 define( 'MEDIA_INSIGHT_MENU_SLUG', 'media-insight' );
 define( 'MEDIA_INSIGHT_REST_NAMESPACE', 'media-insight/v2' );
 define( 'MEDIA_INSIGHT_REST_BATCH_SIZE', 50 );
@@ -55,6 +56,7 @@ register_deactivation_hook( MEDIA_INSIGHT_PLUGIN_FILE, 'media_insight_deactivate
 if ( is_admin() ) {
 	add_action( 'admin_menu', 'media_insight_add_admin_page' );
 	add_action( 'admin_enqueue_scripts', 'media_insight_enqueue_admin_assets' );
+	add_action( 'admin_init', 'media_insight_maybe_handle_csv_export' );
 	add_action( 'admin_post_media_insight_export_csv', 'media_insight_handle_csv_export' );
 }
 
@@ -91,11 +93,14 @@ function media_insight_enqueue_admin_assets( $hook_suffix ) {
 	);
 
 	$media_insight_admin_settings = array(
-		'restNamespace' => MEDIA_INSIGHT_REST_NAMESPACE,
-		'restNonce'     => wp_create_nonce( 'wp_rest' ),
-		'adminPostUrl'  => esc_url_raw( admin_url( 'admin-post.php' ) ),
-		'exportNonce'   => wp_create_nonce( 'media_insight_export_duplicate_images' ),
-		'i18n'          => array(
+		'restNamespace'    => MEDIA_INSIGHT_REST_NAMESPACE,
+		'restNonce'        => wp_create_nonce( 'wp_rest' ),
+		'adminPageUrl'     => esc_url_raw( admin_url( 'admin.php?page=' . MEDIA_INSIGHT_MENU_SLUG ) ),
+		'exportNonce'      => wp_create_nonce( 'media_insight_export_duplicate_images' ),
+		'maxScanLimit'    => media_insight_get_max_scan_limit(),
+		'defaultScanLimit' => 500,
+		'pluginVersion'    => MEDIA_INSIGHT_VERSION,
+		'i18n'             => array(
 			'queued'    => __( 'Scan queued.', 'media-insight' ),
 			'running'   => __( 'Scanning media usage...', 'media-insight' ),
 			'complete'  => __( 'Scan complete.', 'media-insight' ),

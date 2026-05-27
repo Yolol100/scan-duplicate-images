@@ -2,9 +2,9 @@
 Contributors: webactueel
 Tags: media, featured image, acf, image audit
 Requires at least: 6.0
-Tested up to: 6.9
+Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 4.2.15
+Stable tag: 4.3.10
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,7 +14,7 @@ Find repeated featured images on pages/posts and ACF image/gallery fields on pag
 
 Media Insight is a focused admin-only audit tool. It is read-only and does not delete, replace, or update site content.
 
-The scan runs in small batches through the WordPress REST API and stores progress in temporary cache data.
+The scan runs in small batches through the WordPress REST API and stores progress in temporary cache data. Results include image previews, usage locations, edit links and CSV export.
 
 The fixed scan scope is:
 
@@ -46,6 +46,22 @@ Featured images on pages and posts, plus ACF image/gallery fields on pages.
 The admin app starts a REST scan, processes small batches, stores progress in cache/transients, and queues WP Cron so large scans can continue outside a single request.
 
 == Changelog ==
+
+= 4.3.10 =
+* Refined the admin layout with a more compact scan setup, smaller ready status, cleaner empty results state and tighter premium dashboard spacing.
+* Kept the nginx-safe CSV export route from the previous hotfix.
+
+= 4.3.6 =
+* Added admin-app resume support for interrupted or refreshed scans by remembering the active scan ID locally and refreshing its REST status on reload.
+* Added developer and staging validation documentation for large-library tests, debug-log monitoring, low-privilege endpoint checks and release gates.
+
+= 4.3.0 =
+* Upgraded the admin experience with a more native Gutenberg-style product screen, scan presets, clearer empty states, thumbnail result cards and direct media actions.
+* Added thumbnail and media-edit URLs to the REST report payload for richer admin reporting.
+* Set the default scan preset to a safer 500-item standard scan while keeping full scans available.
+* Added CSV fields for thumbnail URL, media edit URL and alt text.
+* Added a POT template for translation handoff and an Update URI header for private-plugin update safety.
+* Removed a duplicate worker return and refreshed runtime metadata.
 
 = 4.2.15 =
 * Returned failed/cancelled scan statuses from the process REST route instead of leaving the admin app with a stale running state.

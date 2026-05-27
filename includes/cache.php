@@ -335,7 +335,7 @@ function media_insight_get_result_bucket_id( $image_key ) {
  * @param array $image  New image result.
  */
 function media_insight_merge_result_image( &$target, $image ) {
-	if ( empty( $image['key'] ) || ! is_array( $image ) ) {
+	if ( ! is_array( $image ) || empty( $image['key'] ) ) {
 		return;
 	}
 
@@ -371,7 +371,7 @@ function media_insight_merge_scan_result_chunks( $scan_id, $user_id, $batch_resu
 	$grouped = array();
 
 	foreach ( $batch_results as $image ) {
-		if ( empty( $image['key'] ) ) {
+		if ( ! is_array( $image ) || empty( $image['key'] ) ) {
 			continue;
 		}
 
@@ -465,10 +465,18 @@ function media_insight_prepare_report_payload( $report ) {
 	$prepared   = array();
 
 	foreach ( $duplicates as $image ) {
+		if ( ! is_array( $image ) ) {
+			continue;
+		}
+
 		$usages          = isset( $image['usages'] ) && is_array( $image['usages'] ) ? array_values( $image['usages'] ) : array();
 		$prepared_usages = array();
 
 		foreach ( $usages as $usage ) {
+			if ( ! is_array( $usage ) ) {
+				continue;
+			}
+
 			$prepared_usages[] = array(
 				'post_id'    => absint( $usage['post_id'] ?? 0 ),
 				'post_title' => sanitize_text_field( $usage['post_title'] ?? '' ),
@@ -484,6 +492,9 @@ function media_insight_prepare_report_payload( $report ) {
 			'attachment_id'     => absint( $image['attachment_id'] ?? 0 ),
 			'filename'          => sanitize_text_field( $image['filename'] ?? '' ),
 			'url'               => esc_url_raw( $image['url'] ?? '' ),
+			'thumbnail_url'     => esc_url_raw( $image['thumbnail_url'] ?? '' ),
+			'media_edit_url'    => esc_url_raw( $image['media_edit_url'] ?? '' ),
+			'alt_text'          => sanitize_text_field( $image['alt_text'] ?? '' ),
 			'unique_post_count' => absint( $image['unique_post_count'] ?? 0 ),
 			'usage_count'       => absint( $image['usage_count'] ?? 0 ),
 			'usages'            => $prepared_usages,

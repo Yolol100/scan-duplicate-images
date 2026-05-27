@@ -193,7 +193,8 @@ function media_insight_rest_process_scan( WP_REST_Request $request ) {
 			return rest_ensure_response( $status );
 		}
 
-		return new WP_Error( 'media_insight_scan_process_failed', $result['message'], array( 'status' => 410 ) );
+		$message = isset( $result['message'] ) ? sanitize_text_field( $result['message'] ) : __( 'The scan could not be processed. Please try again.', 'media-insight' );
+		return new WP_Error( 'media_insight_scan_process_failed', $message, array( 'status' => 410 ) );
 	}
 
 	return rest_ensure_response( $result['status'] );
