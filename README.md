@@ -78,6 +78,6 @@ For large sites, validate with at least 10,000 combined posts/media items before
 
 ## About the developer
 
-I am **Andrew Baeten**, a WordPress Developer & Web Designer with 10+ years of experience across **70+ WordPress projects**. My work combines WordPress, WooCommerce, Elementor, ACF, UX, performance, technical SEO and quality-focused delivery.
+I am **Andrew Baeten**, a Senior WordPress Developer & Web Designer with 10+ years of experience and **70+ delivered WordPress projects**. My work combines WordPress, WooCommerce, Elementor, ACF, UX, performance, technical SEO and quality-focused delivery.
 
 [Portfolio cases](https://andrewbaeten.nl/category/cases) · [LinkedIn](https://www.linkedin.com/in/andrew-baeten-305a1478/) · [Email](mailto:info@andrewbaeten.nl)
