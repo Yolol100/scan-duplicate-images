@@ -4,7 +4,7 @@
 
 Media Insight is an admin-only WordPress plugin for finding repeated image usage in featured images and ACF image/gallery fields. It is intentionally read-only: the plugin reports where media is used without deleting, replacing or rewriting content.
 
-**Built by:** [Andrew Baeten](https://github.com/Yolol100) · [Portfolio cases](https://andrewbaeten.nl/category/cases)
+**Developer profile:** [Andrew Baeten](https://github.com/Yolol100) · [Portfolio cases](https://andrewbaeten.nl/category/cases)
 
 ## What problem it solves
 
