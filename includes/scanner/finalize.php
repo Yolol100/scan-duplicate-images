@@ -24,7 +24,10 @@ function media_insight_count_unique_usage_posts( $usages ) {
 		}
 
 		if ( isset( $usage['post_id'] ) ) {
-			$post_ids[] = absint( $usage['post_id'] );
+			$post_id = absint( $usage['post_id'] );
+			if ( $post_id > 0 ) {
+				$post_ids[] = $post_id;
+			}
 		}
 	}
 
