@@ -42,9 +42,17 @@ jobs:
         run: php tests/scan-results-regression.php
 
   wordpress-runtime:
-    name: WordPress REST and usage integration
+    name: WordPress ${{ matrix.wp }} / PHP ${{ matrix.php }} integration
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - wp: '6.0'
+            php: '7.4'
+          - wp: '7.0'
+            php: '8.3'
     services:
       mysql:
         image: mysql:8.0
@@ -66,7 +74,7 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
         with:
-          php-version: '8.3'
+          php-version: ${{ matrix.php }}
           extensions: mysqli
           coverage: none
       - name: Install checked WP-CLI
@@ -81,7 +89,7 @@ jobs:
           set -euo pipefail
           wp_root="$RUNNER_TEMP/media-insight-wordpress"
           plugin_dir="$wp_root/wp-content/plugins/media-insight"
-          php /tmp/wp-cli.phar core download --path="$wp_root" --version=7.0 --locale=en_US
+          php /tmp/wp-cli.phar core download --path="$wp_root" --version='${{ matrix.wp }}' --locale=en_US
           php /tmp/wp-cli.phar config create --path="$wp_root" --dbname=wordpress --dbuser=root --dbpass=root --dbhost=127.0.0.1:3306
           php /tmp/wp-cli.phar config set WP_DEBUG true --raw --path="$wp_root"
           php /tmp/wp-cli.phar config set WP_DEBUG_LOG true --raw --path="$wp_root"
