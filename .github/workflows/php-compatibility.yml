@@ -37,3 +37,6 @@ jobs:
           find . -type f -name '*.php' -not -path './vendor/*' -print0 \
             | sort -z \
             | xargs -0 -n1 php -l
+
+      - name: Scan result regression
+        run: php tests/scan-results-regression.php
